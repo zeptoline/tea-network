@@ -4,9 +4,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
-import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.Scanner;
 
@@ -25,8 +25,18 @@ public class Peers {
 	public static void main(String[] args) {
 
 		try {
-			ip = InetAddress.getLocalHost().getHostAddress();
+			//ip = InetAddress.getLocalHost().getHostAddress();
+
+			URL whatismyip = new URL("http://checkip.amazonaws.com");
+			BufferedReader in = new BufferedReader(new InputStreamReader(
+					whatismyip.openStream()));
+
+			String ip = in.readLine(); //you get the IP as a String
+			System.out.println(ip);
 		} catch (UnknownHostException e1) {System.err.println("Can't find ip"); return;}
+		catch (IOException e) {
+			e.printStackTrace();
+		}
 
 
 		try 
@@ -72,7 +82,7 @@ public class Peers {
 
 		Thread te = new Thread(new Runnable() {
 			public void run() {
-				try (ServerSocket ss = new ServerSocket(2016);){
+				try (ServerSocket ss = new ServerSocket(80);){
 					System.out.println("Start listening server");
 					while(true) {
 						try(Socket cs = ss.accept();
@@ -86,7 +96,7 @@ public class Peers {
 							{
 								System.out.println(message);
 								TreatMessage(message, os, d, cs);
-								
+
 							}
 						}
 						catch (IOException e) {
@@ -102,7 +112,7 @@ public class Peers {
 		try (Scanner scan = new Scanner(System.in)) {
 			while(true) {
 				String mess = scan.nextLine();
-				try(Socket sc = new Socket(IPsuccesseur, 2016);
+				try(Socket sc = new Socket(IPsuccesseur, 80);
 						PrintStream os = new PrintStream (sc.getOutputStream(), true);) {
 					os.println(mess);
 				}
@@ -124,7 +134,7 @@ public class Peers {
 			AddToNetwork(os, d, cs);
 			break;
 		case "lookin'for_someone" :
-			
+
 			break;
 		case "I'm leaving" :
 			System.out.println("fuck, he's leaving");
@@ -133,7 +143,7 @@ public class Peers {
 			setSuccessor(os, d, cs);
 			break;
 		case "findPred" :
-			 key= Integer.valueOf(cmds[1]);
+			key= Integer.valueOf(cmds[1]);
 			os.println(findPredecessor(key));
 			break;
 		case "findSucc" :
@@ -169,15 +179,15 @@ public class Peers {
 			System.err.println("fuck he's ded");
 		}
 	}
-	
-	
+
+
 	private static void ClientJoining(String IPKnown) {
 		System.out.println("Trying to join the server");
 
 		IPsuccesseur = IPKnown;
-		
+
 		try 
-		(		Socket clientPresent = new Socket(IPKnown, 2016);
+		(		Socket clientPresent = new Socket(IPKnown, 80);
 				BufferedReader in = new BufferedReader(new InputStreamReader (clientPresent.getInputStream()));
 				PrintStream out = new PrintStream (clientPresent.getOutputStream(), true);)
 		{
@@ -189,14 +199,14 @@ public class Peers {
 			} else{
 				System.out.println("wut ?!");
 			}
-			
+
 		} 	
 		catch(UnknownHostException e) {System.err.println("unknown host"); return;}
 		catch ( IOException e ) {System.err.println("I/O error joining known host"); return;}
-		
-		
+
+
 		try 
-		(		Socket Precedant = new Socket(IPKnown, 2016);
+		(		Socket Precedant = new Socket(IPKnown, 80);
 				BufferedReader in = new BufferedReader(new InputStreamReader (Precedant.getInputStream()));
 				PrintStream out = new PrintStream (Precedant.getOutputStream(), true);)
 		{
@@ -211,22 +221,22 @@ public class Peers {
 		catch(UnknownHostException e) {System.err.println("unknown host"); return;}
 		catch ( IOException e ) {System.err.println("I/O error joining predecessor host"); return;}
 	}
-	
-	
-	
-	
-	
-	
+
+
+
+
+
+
 	private static String findPredecessor(int key) {
 		// Methode recursive cherchant le predecesseur d'une certaine clef
 		System.out.println(IPpredecesseur);
 		System.out.println(idPredecesseur);
-		
+
 		return "";
 	}
 	private static String findSuccessor(int key) {
 		// Methode recursive cherchant le successeur d'une certaine clef
-		
+
 		//Il faudra parcourir la table des fingers (si on la fait) et renvoye cette fonction au client le plus proche
 		System.out.println(IPsuccesseur);
 		System.out.println(idSuccesseur);
