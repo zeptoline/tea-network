@@ -37,7 +37,7 @@ public class Peers {
 			hash = hashEntree.readLine();
 		} 	
 		catch(UnknownHostException e) {System.out.println("unknown host"); return;}
-		catch ( IOException e ) {System.out.println("erreur I/O"); return;}
+		catch ( IOException e ) {System.out.println("erreur I/O HashServer"); return;}
 
 
 		try (Socket WSsock = new Socket (IP_SERVEUR, 8000);
@@ -66,12 +66,13 @@ public class Peers {
 
 		} 	
 		catch(UnknownHostException e) {System.out.println("unknown host"); return;}
-		catch ( IOException e ) {System.out.println("erreur I/O"); return;}
+		catch ( IOException e ) {System.out.println("erreur I/O Welcome Server"); return;}
 
 
 		Thread te = new Thread(new Runnable() {
 			public void run() {
 				try (ServerSocket ss = new ServerSocket(2016);){
+					System.out.println("Start listening server");
 					while(true) {
 						try(Socket cs = ss.accept();
 								BufferedReader d = new BufferedReader(new InputStreamReader(cs.getInputStream()));
@@ -81,6 +82,7 @@ public class Peers {
 							String message = "";
 							while((message = d.readLine())!= null) 
 							{
+								System.out.println(message);
 								TreatMessage(message, os, d, cs);
 								
 							}
@@ -132,10 +134,10 @@ public class Peers {
 
 
 	private static void AddToNetwork(PrintStream os, BufferedReader d, Socket cs) {
+		System.out.println("Adding a peer to the network");
 		os.println("K.");
 		os.println(IPpredecesseur);
 		IPpredecesseur = cs.getInetAddress().getHostAddress();
-		os.println("hash pls?");
 		try {
 			idPredecesseur = Integer.valueOf(d.readLine());
 		} catch (IOException e) {
@@ -144,6 +146,7 @@ public class Peers {
 	}
 
 	private static void setSuccessor(PrintStream os, BufferedReader d, Socket cs) {
+		System.out.println("Setting new successor");
 		IPsuccesseur = cs.getInetAddress().getHostAddress();
 		os.println("hash pls?");
 		try {
@@ -155,6 +158,7 @@ public class Peers {
 	
 	
 	private static void ClientJoining(String IPKnown) {
+		System.out.println("Trying to join the server");
 
 		IPsuccesseur = IPKnown;
 		
@@ -167,8 +171,6 @@ public class Peers {
 			out.println("addme_pls");
 			if(in.readLine().equals("K.")) {
 				IPpredecesseur = in.readLine();
-			}
-			if(in.readLine().equals("hash pls?")) {
 				out.println(hash);
 			}
 			
