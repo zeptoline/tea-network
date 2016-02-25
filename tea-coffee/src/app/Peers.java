@@ -25,8 +25,10 @@ public class Peers {
 	public static void main(String[] args) {
 
 		try {
+			//IP in the same network
 			//ip = InetAddress.getLocalHost().getHostAddress();
 
+			//public IP
 			URL whatismyip = new URL("http://checkip.amazonaws.com");
 			BufferedReader in = new BufferedReader(new InputStreamReader(
 					whatismyip.openStream()));
@@ -82,7 +84,7 @@ public class Peers {
 
 		Thread te = new Thread(new Runnable() {
 			public void run() {
-				try (ServerSocket ss = new ServerSocket(80);){
+				try (ServerSocket ss = new ServerSocket(2016);){
 					System.out.println("Start listening server");
 					while(true) {
 						try(Socket cs = ss.accept();
@@ -112,7 +114,7 @@ public class Peers {
 		try (Scanner scan = new Scanner(System.in)) {
 			while(true) {
 				String mess = scan.nextLine();
-				try(Socket sc = new Socket(IPsuccesseur, 80);
+				try(Socket sc = new Socket(IPsuccesseur, 2016);
 						PrintStream os = new PrintStream (sc.getOutputStream(), true);) {
 					os.println(mess);
 				}
@@ -187,7 +189,7 @@ public class Peers {
 		IPsuccesseur = IPKnown;
 
 		try 
-		(		Socket clientPresent = new Socket(IPKnown, 80);
+		(		Socket clientPresent = new Socket(IPKnown, 2016);
 				BufferedReader in = new BufferedReader(new InputStreamReader (clientPresent.getInputStream()));
 				PrintStream out = new PrintStream (clientPresent.getOutputStream(), true);)
 		{
@@ -206,7 +208,7 @@ public class Peers {
 
 
 		try 
-		(		Socket Precedant = new Socket(IPKnown, 80);
+		(		Socket Precedant = new Socket(IPKnown, 2016);
 				BufferedReader in = new BufferedReader(new InputStreamReader (Precedant.getInputStream()));
 				PrintStream out = new PrintStream (Precedant.getOutputStream(), true);)
 		{
