@@ -10,7 +10,7 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 
 public class Peers {
-	private static final String IP_SERVEUR = "localhost";
+	private static final String IP_SERVEUR = "192.168.0.10";
 
 	private static String hash ="";
 
@@ -36,7 +36,7 @@ public class Peers {
 			hashSortie.println(ip);
 			hash = hashEntree.readLine();
 		} 	
-		catch(UnknownHostException e) {System.out.println("hôte inconnu"); return;}
+		catch(UnknownHostException e) {System.out.println("unknown host"); return;}
 		catch ( IOException e ) {System.out.println("erreur I/O"); return;}
 
 
@@ -50,22 +50,22 @@ public class Peers {
 
 			String entreeLue = entree.readLine();
 			if(entreeLue.equals("yaf")) { 
-				System.out.println("Vous êtes le premier client sur le réseau");
+				System.out.println("You're the first on the network");
 				IPsuccesseur = ip;
 				idSuccesseur = Integer.valueOf(hash);
 				IPpredecesseur = ip;
 				idPredecesseur = Integer.valueOf(hash);
 			}
 			else if(!entreeLue.equals("wrq")) {
-				System.out.println("votre successeur à l'addresse " + entreeLue);
+				System.out.println("Your successor is at " + entreeLue);
 				ClientJoining(entreeLue);
 
 			}
 			else
-				System.out.println("La connection est un échec");
+				System.out.println("The connexion failed");
 
 		} 	
-		catch(UnknownHostException e) {System.out.println("hôte inconnu"); return;}
+		catch(UnknownHostException e) {System.out.println("unknown host"); return;}
 		catch ( IOException e ) {System.out.println("erreur I/O"); return;}
 
 
@@ -86,7 +86,7 @@ public class Peers {
 							}
 						}
 						catch (IOException e) {
-							System.out.println("Serveur d'écoute IO Erreur");
+							System.out.println("Listening server IO Erreur");
 						}
 					}
 
@@ -174,8 +174,8 @@ public class Peers {
 			
 		} 	
 		
-		catch(UnknownHostException e) {System.out.println("hôte inconnu"); return;}
-		catch ( IOException e ) {System.out.println("erreur I/O"); return;}
+		catch(UnknownHostException e) {System.out.println("unknown host"); return;}
+		catch ( IOException e ) {System.out.println("I/O error"); return;}
 		
 		try 
 		(		Socket Precedant = new Socket(IPKnown, 8001);
@@ -188,8 +188,8 @@ public class Peers {
 				out.println(hash);				
 			}
 		} 	
-		catch(UnknownHostException e) {System.out.println("hôte inconnu"); return;}
-		catch ( IOException e ) {System.out.println("erreur I/O"); return;}
+		catch(UnknownHostException e) {System.out.println("unknown host"); return;}
+		catch ( IOException e ) {System.out.println("I/O error"); return;}
 	}
 	
 	
@@ -198,16 +198,16 @@ public class Peers {
 	
 	
 	private static String findPredecessor(int key) {
-		// Methode recursive cherchant le predecesseur à une certaine clé
+		// Methode recursive cherchant le predecesseur d'une certaine clef
 		System.out.println(IPpredecesseur);
 		System.out.println(idPredecesseur);
 		
 		return "";
 	}
 	private static String findSuccessor(int key) {
-		// Methode recursive cherchant le successeur à une certaine clé
+		// Methode recursive cherchant le successeur d'une certaine clef
 		
-		//Il faudra parcourir la table des fingers (si on la fait) et renvoyé cette fonction au client le plus proche
+		//Il faudra parcourir la table des fingers (si on la fait) et renvoye cette fonction au client le plus proche
 		System.out.println(IPsuccesseur);
 		System.out.println(idSuccesseur);
 		return "";		
