@@ -8,6 +8,7 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.Scanner;
 
 public class Peers {
 	private static final String IP_SERVEUR = "192.168.0.10";
@@ -25,7 +26,7 @@ public class Peers {
 
 		try {
 			ip = InetAddress.getLocalHost().getHostAddress();
-		} catch (UnknownHostException e1) {System.out.println("Can't find ip"); return;}
+		} catch (UnknownHostException e1) {System.err.println("Can't find ip"); return;}
 
 
 		try 
@@ -36,8 +37,8 @@ public class Peers {
 			hashSortie.println(ip);
 			hash = hashEntree.readLine();
 		} 	
-		catch(UnknownHostException e) {System.out.println("unknown host"); return;}
-		catch ( IOException e ) {System.out.println("erreur I/O HashServer"); return;}
+		catch(UnknownHostException e) {System.err.println("unknown host"); return;}
+		catch ( IOException e ) {System.err.println("erreur I/O HashServer"); return;}
 
 
 		try (Socket WSsock = new Socket (IP_SERVEUR, 8000);
@@ -62,11 +63,11 @@ public class Peers {
 
 			}
 			else
-				System.out.println("The connexion failed");
+				System.err.println("The connexion failed");
 
 		} 	
-		catch(UnknownHostException e) {System.out.println("unknown host"); return;}
-		catch ( IOException e ) {System.out.println("erreur I/O Welcome Server"); return;}
+		catch(UnknownHostException e) {System.err.println("unknown host"); return;}
+		catch ( IOException e ) {System.err.println("erreur I/O Welcome Server"); return;}
 
 
 		Thread te = new Thread(new Runnable() {
@@ -79,6 +80,7 @@ public class Peers {
 								PrintStream os = new PrintStream (cs.getOutputStream(), true);
 								) 
 						{
+							System.out.println("new entry");
 							String message = "";
 							while((message = d.readLine())!= null) 
 							{
@@ -88,7 +90,7 @@ public class Peers {
 							}
 						}
 						catch (IOException e) {
-							System.out.println("Listening server IO Erreur");
+							System.err.println("Listening server IO Erreur");
 						}
 					}
 
@@ -97,7 +99,18 @@ public class Peers {
 		});
 		te.start();
 
-
+		try (Scanner scan = new Scanner(System.in)) {
+			while(true) {
+				String mess = scan.nextLine();
+				try(Socket sc = new Socket(IPsuccesseur, 2016);
+						PrintStream os = new PrintStream (sc.getOutputStream(), true);) {
+					os.println(mess);
+				}
+				catch (IOException e) {
+					System.err.println("Listening server IO Erreur");
+				}
+			}
+		}
 
 
 	}
@@ -128,6 +141,7 @@ public class Peers {
 			os.println(findSuccessor(key));
 			break;
 		default:
+			System.out.println(message);
 			break;
 		}
 	}
@@ -141,7 +155,7 @@ public class Peers {
 		try {
 			idPredecesseur = Integer.valueOf(d.readLine());
 		} catch (IOException e) {
-			System.out.println("fuck he's ded");
+			System.err.println("fuck he's ded");
 		}
 	}
 
@@ -152,7 +166,7 @@ public class Peers {
 		try {
 			idSuccesseur = Integer.valueOf(d.readLine());
 		} catch (IOException e) {
-			System.out.println("fuck he's ded");
+			System.err.println("fuck he's ded");
 		}
 	}
 	
@@ -163,7 +177,7 @@ public class Peers {
 		IPsuccesseur = IPKnown;
 		
 		try 
-		(		Socket clientPresent = new Socket(IPKnown, 8001);
+		(		Socket clientPresent = new Socket(IPKnown, 2016);
 				BufferedReader in = new BufferedReader(new InputStreamReader (clientPresent.getInputStream()));
 				PrintStream out = new PrintStream (clientPresent.getOutputStream(), true);)
 		{
@@ -172,15 +186,17 @@ public class Peers {
 			if(in.readLine().equals("K.")) {
 				IPpredecesseur = in.readLine();
 				out.println(hash);
+			} else{
+				System.out.println("wut ?!");
 			}
 			
 		} 	
+		catch(UnknownHostException e) {System.err.println("unknown host"); return;}
+		catch ( IOException e ) {System.err.println("I/O error joining known host"); return;}
 		
-		catch(UnknownHostException e) {System.out.println("unknown host"); return;}
-		catch ( IOException e ) {System.out.println("I/O error joining known host"); return;}
 		
 		try 
-		(		Socket Precedant = new Socket(IPKnown, 8001);
+		(		Socket Precedant = new Socket(IPKnown, 2016);
 				BufferedReader in = new BufferedReader(new InputStreamReader (Precedant.getInputStream()));
 				PrintStream out = new PrintStream (Precedant.getOutputStream(), true);)
 		{
@@ -188,10 +204,12 @@ public class Peers {
 			out.println("Hey Im new");
 			if(in.readLine().equals("hash pls?")) {
 				out.println(hash);				
+			} else{
+				System.out.println("wut ?!");
 			}
 		} 	
-		catch(UnknownHostException e) {System.out.println("unknown host"); return;}
-		catch ( IOException e ) {System.out.println("I/O error joining predecessor host"); return;}
+		catch(UnknownHostException e) {System.err.println("unknown host"); return;}
+		catch ( IOException e ) {System.err.println("I/O error joining predecessor host"); return;}
 	}
 	
 	
