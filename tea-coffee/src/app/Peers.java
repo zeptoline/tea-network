@@ -177,7 +177,7 @@ public class Peers {
 		} 	
 		
 		catch(UnknownHostException e) {System.out.println("unknown host"); return;}
-		catch ( IOException e ) {System.out.println("I/O error"); return;}
+		catch ( IOException e ) {System.out.println("I/O error joining known host"); return;}
 		
 		try 
 		(		Socket Precedant = new Socket(IPKnown, 8001);
@@ -191,7 +191,7 @@ public class Peers {
 			}
 		} 	
 		catch(UnknownHostException e) {System.out.println("unknown host"); return;}
-		catch ( IOException e ) {System.out.println("I/O error"); return;}
+		catch ( IOException e ) {System.out.println("I/O error joining predecessor host"); return;}
 	}
 	
 	
