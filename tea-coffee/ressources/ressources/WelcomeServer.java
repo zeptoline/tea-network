@@ -27,10 +27,14 @@ public class WelcomeServer {
     // En cas d'erreur l'entier retourné est négatif
     private static int safeParseInt(String i) {
 
+    System.out.println("la string est : " + i + "\n");
+    
+    	
 	int res = -1;
 
 	try {
 	    res = Integer.parseInt(i);
+	    System.out.println("res : " + res + "\n");
 	} finally {
 	    return res;
 	}
@@ -94,6 +98,7 @@ public class WelcomeServer {
 				String sep = ":";
 				String[] words = inputLine.split(sep);
 				if (words.length < 1) {
+					System.out.println("Test1");
 				    out.println("wrq");
 				} else {
 				    
@@ -109,11 +114,13 @@ public class WelcomeServer {
 					// Si le réseau est vide, on envoie au pair
 					// le message « yaf » (you are the first)
 					if (words.length != 3) {
+						System.out.println("Test2");
 					    out.println("wrq");
 					} else {
 					    hash = safeParseInt(words[1]);
 					    if (hash < 0 || inNetwork.containsKey(hash)) {
-						out.println("wrq");
+					    	System.out.println("Test3");
+					    out.println("wrq");
 					    } else {
 						anIp = "yaf";
 						if (!inNetwork.isEmpty())
@@ -190,6 +197,7 @@ public class WelcomeServer {
 					break;
 					
 				    default:
+				    	System.out.println("Test4");
 					out.println("wrq");
 					break;
 					
