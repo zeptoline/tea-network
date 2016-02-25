@@ -1,7 +1,7 @@
 /*
  *
  * Moniteur
- *   1. Démarrer le moniteur en indiquant 
+ *   1. Démarrer le moniteur en indiquant
  *         . l'hôte et le port du serveur d'accueil
  *         . le port pour la communication avec les pairs
  *         . l'hôte et le port du serveur de hachage
@@ -18,7 +18,7 @@ public class MonitorServer {
 
     // Invite donnant la main à l'utilisateur
     private static void displayInvit() {
-	
+
 	System.out.println("");
 	System.out.println(">> Donnez moi un ordre s'il vous plait maître.");
 
@@ -26,7 +26,7 @@ public class MonitorServer {
 
     // Message d'aide
     private static void displayHelp() {
-	
+
 	System.out.println("");
 	System.out.println("***********************************************************");
 	System.out.println("*   Les ordres possibles sont :                           *");
@@ -43,7 +43,7 @@ public class MonitorServer {
 
     // Message d'erreur
     private static void displayError(String info) {
-	
+
 	System.out.println("");
 	System.out.println("!!!   Impossible d'exécuter cet ordre");
 	System.out.println("!!!      Info : " + info);
@@ -71,20 +71,20 @@ public class MonitorServer {
 	     BufferedReader in = new BufferedReader(new InputStreamReader(s.getInputStream()));
 	     ) {
 
-		// Pour demander l'ip correspondant à un hash on envoie un message commençant par « ip?: »		    
+		// Pour demander l'ip correspondant à un hash on envoie un message commençant par « ip?: »
 		out.println("ip?:"+hash);
 		String inputLine;
 		if ((inputLine = in.readLine()) != null && !inputLine.equals("ukh") && !inputLine.equals("wrq")) {
 		    // Si l'ip est bien reçue et correcte (i.e. le serveur n'a pas répondu « ukh » ou « wrq »)
 		    // On l'enregistre pour la retourner
 		    res = inputLine;
-		} 
+		}
 
 	    }
 	catch (IOException e) {
 	    res = "oups";
 	}
-	
+
 	// On retourne l'adresse correspondant au hash, ou « oups » en cas de problème
 	return res;
 
@@ -156,7 +156,7 @@ public class MonitorServer {
 		RTLine current = table.get(i);
 		System.out.println(">         " + current.k + " -> " + current.succ + " (" + current.ip + ")");
 	    }
-	    
+
 	}
 
 
@@ -171,7 +171,7 @@ public class MonitorServer {
 
 	if (host.equals("oups")) {
 
-	    // Si le pair n'a pas été précédemment trouvé on affiche une erreur 
+	    // Si le pair n'a pas été précédemment trouvé on affiche une erreur
 	    rt.setNOk();
 	    displayError("pair inconnu dans le réseau");
 
@@ -183,7 +183,7 @@ public class MonitorServer {
 		 Socket s = new Socket(host,port);
 		 PrintWriter out = new PrintWriter(s.getOutputStream(), true);
 		 BufferedReader in = new BufferedReader(new InputStreamReader(s.getInputStream()));
-		 ) {	
+		 ) {
 
 		    // Pour demander sa table à un pair on lui envoie le message « rt? »
 		    out.println("rt?");
@@ -193,14 +193,14 @@ public class MonitorServer {
 		    String inputLine;
 		    Boolean ok = true;
 		    while ((inputLine = in.readLine()) != null && !inputLine.equals("end") && ok) {
-			
+
 			String sep = ":";
 			String[] words = inputLine.split(sep);
 
 			// On vérifie que la ligne a le format attendu
 			// c'est à dire k:succ:succIp avec k et succ des entiers
 			if (words.length != 3) {
-			 
+
 			    ok = false;
 
 			} else {
@@ -215,7 +215,7 @@ public class MonitorServer {
 
 			}
 
-		    } 
+		    }
 
 		    // Si tout s'est bien passé on indique que la table est correcte
 		    // Sinon on affiche une erreur
@@ -261,24 +261,24 @@ public class MonitorServer {
 
 		    String sep = ":";
 		    String[] words = inputLine.split(sep);
-		    
+
 		    if (words.length != 3) {
-			
+
 			ok = false;
-			
+
 		    } else {
-			
+
 			int k = safeParseInt(words[0]);
 			int succ = safeParseInt(words[1]);
 			String succIp = words[2];
-			
+
 			ok = !((k < 0) || (succ < 0));
-			
+
 			rt.addLine(k, succ, succIp);
-			
+
 		    }
-		    
-		} 
+
+		}
 		if (ok && !inputLine.equals("ukh")) {
 		    rt.setOk();
 		} else if (inputLine.equals("ukh")) {
@@ -293,7 +293,7 @@ public class MonitorServer {
 		rt.setNOk();
 		displayError("problème de connexion au serveur d'accueil");
 	}
-	
+
 	return rt;
 
     }
@@ -354,7 +354,7 @@ public class MonitorServer {
 		    System.out.println(">         " + current.k + " (" + current.ip + ")");
 		}
 	    }
-	    
+
 	}
 
     }
@@ -382,23 +382,23 @@ public class MonitorServer {
 
 		    String sep = ":";
 		    String[] words = inputLine.split(sep);
-		    
+
 		    if (words.length != 2) {
-			
+
 			ok = false;
-			
+
 		    } else {
-			
+
 			int k = safeParseInt(words[0]);
 			String ip = words[1];
-			
+
 			ok = !(k < 0);
-			
+
 			pl.addLine(k, ip);
-			
+
 		    }
-		    
-		} 
+
+		}
 		if (ok) {
 		    pl.setOk();
 		} else {
@@ -410,14 +410,14 @@ public class MonitorServer {
 		pl.setNOk();
 		displayError("problème de connexion au serveur d'accueil");
 	}
-	
+
 	return pl;
 
     }
 
     // Classe pour décrire les commandes que peut accepter le moniteur
     private static class Command {
-	
+
 	public int command;
 	public int arg1;
 	public Boolean isOk;
@@ -434,7 +434,7 @@ public class MonitorServer {
 	public void setArg1(int a) {
 	    this.arg1 = a;
 	}
-	
+
 	public void setOk() {
 	    this.isOk = true;
 	}
@@ -442,12 +442,12 @@ public class MonitorServer {
 	public void setNOk() {
 	    this.isOk = false;
 	}
-	
+
     }
 
     // Lecture et parsing des commandes
     private static Command readCommand(BufferedReader sin) throws IOException {
-	
+
 	Command c = new Command();
 
 	// On propose dans un premier temps à l'utilisateur d'entrer une commande
@@ -468,7 +468,7 @@ public class MonitorServer {
 	    // et a au moins autant d'arguments que nécessaire
 	    switch (words[0]) {
 
-	    case "help": 
+	    case "help":
 		c.setCommand(0);
 		c.setOk();
 		break;
@@ -551,42 +551,42 @@ public class MonitorServer {
 	try (
 	     BufferedReader sin = new BufferedReader(new InputStreamReader(System.in));
 	     ) {
-		
+
 		// Tant que l'utilisateur ne demande pas d'arrêter
 		// on lit une commande puis on l'exécute
 		while (!done) {
-		    
+
 		    Command c = readCommand(sin);
 		    RoutingTable rt;
 		    PeerList pl;
-		    
+
 		    if (c.isOk) {
 
 			switch (c.command) {
 
-			case 0:
+			case 0: // help
 			    displayHelp();
 			    break;
-			    
-			case 1:
+
+			case 1: //exit
 			    displayQuit();
 			    done = true;
 			    break;
 
-			case 2:
+			case 2: //rout h
 			    String peerHost = getHost(c.arg1,wSHost,wSPort);
 			    rt = getRoutingTable(peerHost,port);
 			    if (rt.isOk)
 				rt.display();
 			    break;
 
-			case 3:
+			case 3: //brout h
 			    rt = getRoutingTable(wSHost,wSPort,c.arg1);
 			    if (rt.isOk)
 				rt.display();
 			    break;
 
-			case 4:
+			case 4: //list
 			    pl = getPeerList(wSHost,wSPort);
 			    if (pl.isOk)
 				pl.display();
@@ -597,13 +597,13 @@ public class MonitorServer {
 			    break;
 
 			}
-			
+
 		    } else {
 
 			displayHelp();
 
 		    }
-		    
+
 		}
 
 	    }
@@ -611,7 +611,7 @@ public class MonitorServer {
 	    System.err.println(e.getMessage());
 	    System.exit(1);
 	}
-	
+
     }
-    
+
 }
