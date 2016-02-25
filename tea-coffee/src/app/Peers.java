@@ -31,7 +31,7 @@ public class Peers {
 			BufferedReader in = new BufferedReader(new InputStreamReader(
 					whatismyip.openStream()));
 
-			String ip = in.readLine(); //you get the IP as a String
+			ip = in.readLine(); //you get the IP as a String
 			System.out.println(ip);
 		} catch (UnknownHostException e1) {System.err.println("Can't find ip"); return;}
 		catch (IOException e) {
