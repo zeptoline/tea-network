@@ -68,6 +68,8 @@ public class Peers {
 				idSuccesseur = Integer.valueOf(hash);
 				IPpredecesseur = ip;
 				idPredecesseur = Integer.valueOf(hash);
+				System.out.println("Your hash : "+hash);
+				System.out.println("Your ip : "+ip);
 			}
 			else if(!entreeLue.equals("wrq")) {
 				System.out.println("Your successor is at " + entreeLue);
@@ -93,7 +95,6 @@ public class Peers {
 								PrintStream os = new PrintStream (cs.getOutputStream(), true);
 								) 
 						{
-							System.out.println("new entry");
 							String message = "";
 							while((message = d.readLine())!= null) 
 							{
@@ -178,7 +179,7 @@ public class Peers {
 		} catch (IOException e) {
 			System.err.println("fuck he's ded");
 		}
-		System.out.println("added");
+		System.out.println("Peer added to the network");
 	}
 
 	private static void setSuccessor(PrintStream os, BufferedReader d, Socket cs) {
@@ -190,6 +191,7 @@ public class Peers {
 		} catch (IOException e) {
 			System.err.println("fuck he's ded");
 		}
+		System.out.println("Successor added");
 	}
 
 
