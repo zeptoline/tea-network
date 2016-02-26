@@ -160,7 +160,7 @@ public class Peers {
 			default:
 				break;
 			}
-
+			break;
 		case "later" :
 			System.out.println("fuck, he's leaving");
 			break;
@@ -169,21 +169,47 @@ public class Peers {
 			if(hashTo != hash) {
 				if(idSuccesseur > hash) {
 					if(idSuccesseur > hashTo) {
-						System.out.println("Le receveur du message : "+message+" n'existe pas");
+						sendToSuccessor("ERRORsendTo:"+cmds[2]+":"+hash+":the peers "+cmds[1]+" was not found");
 					} else {
 						sendToSuccessor(message);
 					}
 				} else {
 					if(hashTo > hash) {
-						System.out.println("Le receveur du message : "+message+" n'existe pas");
+						sendToSuccessor("ERRORsendTo:"+cmds[2]+":"+hash+":the peers "+cmds[1]+" was not found");
 					}else if (hashTo > 0 && hashTo < idSuccesseur) {
-						System.out.println("Le receveur du message : "+message+" n'existe pas");
+						sendToSuccessor("ERRORsendTo:"+cmds[2]+":"+hash+":the peers "+cmds[1]+" was not found");
 					} else {
 						sendToSuccessor(message);
 					}
 				}
 			} else {
 				System.out.println("Received message from "+cmds[2]+" : "+cmds[3]);
+			}
+
+			break;
+		case "ERRRORsendTo" :
+			int hashToErr = Integer.valueOf(cmds[1]);
+			if(hashToErr != hash) {
+				if(idSuccesseur > hash) {
+					if(idSuccesseur > hashToErr) {
+						sendToSuccessor("ERRORsendTo:"+cmds[2]+":"+hash+":the peers "+cmds[1]+" was not found");
+						System.out.println("Le receveur du message : "+message+" n'existe pas");
+					} else {
+						sendToSuccessor(message);
+					}
+				} else {
+					if(hashToErr > hash) {
+						sendToSuccessor("ERRORsendTo:"+cmds[2]+":"+hash+":the peers "+cmds[1]+" was not found");
+						System.out.println("Le receveur du message : "+message+" n'existe pas");
+					}else if (hashToErr > 0 && hashToErr < idSuccesseur) {
+						sendToSuccessor("ERRORsendTo:"+cmds[2]+":"+hash+":the peers "+cmds[1]+" was not found");
+						System.out.println("Le receveur du message : "+message+" n'existe pas");
+					} else {
+						sendToSuccessor(message);
+					}
+				}
+			} else {
+				System.err.println(cmds[3]);
 			}
 
 			break;
