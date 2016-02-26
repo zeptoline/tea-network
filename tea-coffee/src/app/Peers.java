@@ -11,7 +11,7 @@ import java.net.UnknownHostException;
 import java.util.Scanner;
 
 public class Peers {
-	private static final String IP_SERVEUR = "172.21.65.26";
+	private static final String IP_SERVEUR = "localhost";
 
 	private static String hash ="";
 
@@ -143,7 +143,6 @@ public class Peers {
 
 	private static void TreatMessage(String message, PrintStream os, BufferedReader d, Socket cs) {
 		String[] cmds = message.split(":");
-		int key;
 		switch (cmds[0]) {
 		case "addme_pls" :
 			AddToNetwork(os, d, cs);
@@ -155,21 +154,16 @@ public class Peers {
 			System.out.println("fuck, he's leaving");
 			break;
 		case "Hey Im new" :
-			setSuccessor(os, d, cs);
-			break;
-		case "findPred" :
-			key= Integer.valueOf(cmds[1]);
-			System.out.println(findPredecessor(key));
-			break;
-		case "findSucc" :
-			key = Integer.valueOf(cmds[1]);
-			System.out.println(findSuccessor(key));
+			setPredecesseur(os, d, cs);
 			break;
 		case "sendTo" :
 			int hashTo = Integer.valueOf(cmds[1]);
 			if(hashTo != Integer.valueOf(hash)) {
 				
 			}
+			/*
+			 * TODO
+			 */
 			break;
 		default:
 			System.out.println(message);
@@ -182,41 +176,37 @@ public class Peers {
 		System.out.println("Adding a peer to the network");
 		os.println("K.");
 		os.println(hash);
-		os.println(IPpredecesseur);
-		os.println(idPredecesseur);
+		os.println(IPsuccesseur);
+		os.println(idSuccesseur);
 		
-		/*
-		 * 
-		 * Peut-être un problème d'envois
-		 * 
-		 */
+	
 		
-		IPpredecesseur = cs.getInetAddress().getHostAddress();
+		IPsuccesseur = cs.getInetAddress().getHostAddress();
 		try {
-			idPredecesseur = Integer.valueOf(d.readLine());
+			idSuccesseur = Integer.valueOf(d.readLine());
 		} catch (IOException e) {
 			System.err.println("fuck he's ded");
 		}
 		System.out.println("Peer added to the network");
 	}
 
-	private static void setSuccessor(PrintStream os, BufferedReader d, Socket cs) {
-		System.out.println("Setting new successor");
-		IPsuccesseur = cs.getInetAddress().getHostAddress();
+	private static void setPredecesseur(PrintStream os, BufferedReader d, Socket cs) {
+		System.out.println("Setting new predecessor");
+		IPpredecesseur = cs.getInetAddress().getHostAddress();
 		os.println("hash pls?");
 		try {
-			idSuccesseur = Integer.valueOf(d.readLine());
+			idPredecesseur = Integer.valueOf(d.readLine());
 		} catch (IOException e) {
 			System.err.println("fuck he's ded");
 		}
-		System.out.println("Successor added");
+		System.out.println("Predecessor added");
 	}
 
 
 	private static void ClientJoining(String IPKnown) {
 		System.out.println("Trying to join the server");
 
-		IPsuccesseur = IPKnown;
+		IPpredecesseur = IPKnown;
 
 		try 
 		(		Socket clientPresent = new Socket(IPKnown, 2016);
@@ -226,9 +216,9 @@ public class Peers {
 
 			out.println("addme_pls");
 			if(in.readLine().equals("K.")) {
-				idSuccesseur = Integer.valueOf(in.readLine());
-				IPpredecesseur = in.readLine();
 				idPredecesseur = Integer.valueOf(in.readLine());
+				IPsuccesseur = in.readLine();
+				idSuccesseur = Integer.valueOf(in.readLine());
 				out.println(hash);
 			} else{
 				System.out.println("wut ?!");
@@ -240,9 +230,9 @@ public class Peers {
 
 
 		try 
-		(		Socket Precedant = new Socket(IPpredecesseur, 2016);
-				BufferedReader in = new BufferedReader(new InputStreamReader (Precedant.getInputStream()));
-				PrintStream out = new PrintStream (Precedant.getOutputStream(), true);)
+		(		Socket Suivant = new Socket(IPpredecesseur, 2016);
+				BufferedReader in = new BufferedReader(new InputStreamReader (Suivant.getInputStream()));
+				PrintStream out = new PrintStream (Suivant.getOutputStream(), true);)
 		{
 
 			out.println("Hey Im new");
@@ -257,23 +247,21 @@ public class Peers {
 	}
 
 
-
-
-
-
-	private static String findPredecessor(int key) {
-		// Methode recursive cherchant le predecesseur d'une certaine clef
-		System.out.println(IPpredecesseur);
-		System.out.println(idPredecesseur);
-
-		return "";
+	
+	
+	
+	
+	/*
+	 * 
+	 * Pour enlever le warning..
+	 */
+	public static int getIdPredecesseur() {
+		return idPredecesseur;
 	}
-	private static String findSuccessor(int key) {
-		// Methode recursive cherchant le successeur d'une certaine clef
 
-		//Il faudra parcourir la table des fingers (si on la fait) et renvoye cette fonction au client le plus proche
-		System.out.println(IPsuccesseur);
-		System.out.println(idSuccesseur);
-		return "";		
-	}
+
+
+
+
+
 }
