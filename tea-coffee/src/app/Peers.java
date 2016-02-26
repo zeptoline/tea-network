@@ -124,16 +124,16 @@ public class Peers {
 					break;
 
 				default:
+					try(Socket sc = new Socket(IPsuccesseur, 2016);
+							PrintStream os = new PrintStream (sc.getOutputStream(), true);) {
+						os.println(mess);
+					}
+					catch (IOException e) {
+						System.err.println("Sending server IO Erreur");
+					}
 					break;
 				}
-				/*
-				try(Socket sc = new Socket(IPsuccesseur, 2016);
-						PrintStream os = new PrintStream (sc.getOutputStream(), true);) {
-					os.println(mess);
-				}
-				catch (IOException e) {
-					System.err.println("Sending server IO Erreur");
-				}*/
+				
 			}
 		}
 
