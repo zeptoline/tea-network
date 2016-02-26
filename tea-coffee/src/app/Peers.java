@@ -4,14 +4,14 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.Scanner;
 
 public class Peers {
-	private static final String IP_SERVEUR = "192.168.0.10";
+	private static final String IP_SERVEUR = "172.21.65.26";
 
 	private static String hash ="";
 
@@ -26,10 +26,10 @@ public class Peers {
 
 		try {
 			//IP in the same network
-			//ip = InetAddress.getLocalHost().getHostAddress();
-
+			ip = InetAddress.getLocalHost().getHostAddress();
+		}catch(Exception e) {System.err.println("error ip"); return;}
 			//public IP
-			URL whatismyip = new URL("http://checkip.amazonaws.com");
+			/*URL whatismyip = new URL("http://checkip.amazonaws.com");
 			BufferedReader in = new BufferedReader(new InputStreamReader(
 					whatismyip.openStream()));
 
@@ -38,7 +38,7 @@ public class Peers {
 		} catch (UnknownHostException e1) {System.err.println("Can't find ip"); return;}
 		catch (IOException e) {
 			e.printStackTrace();
-		}
+		}*/
 
 
 		try 
@@ -74,9 +74,10 @@ public class Peers {
 				ClientJoining(entreeLue);
 
 			}
-			else
+			else {
 				System.err.println("The connexion failed");
-
+				return;
+			}
 		} 	
 		catch(UnknownHostException e) {System.err.println("unknown host"); return;}
 		catch ( IOException e ) {System.err.println("erreur I/O Welcome Server"); return;}
@@ -96,7 +97,6 @@ public class Peers {
 							String message = "";
 							while((message = d.readLine())!= null) 
 							{
-								System.out.println(message);
 								TreatMessage(message, os, d, cs);
 
 							}
@@ -119,7 +119,7 @@ public class Peers {
 					os.println(mess);
 				}
 				catch (IOException e) {
-					System.err.println("Listening server IO Erreur");
+					System.err.println("Sending server IO Erreur");
 				}
 			}
 		}
