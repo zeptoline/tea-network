@@ -74,6 +74,8 @@ public class Peers {
 			else if(!entreeLue.equals("wrq")) {
 				System.out.println("Your successor is at " + entreeLue);
 				ClientJoining(entreeLue);
+				System.out.println("Your hash : "+hash);
+				System.out.println("Your ip : "+ip);
 
 			}
 			else {
