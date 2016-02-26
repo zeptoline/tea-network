@@ -184,6 +184,31 @@ public class Peers {
 				}
 			} else {
 				System.out.println("Received message from "+cmds[2]+" : "+cmds[3]);
+				sendToSuccessor("sendToWellReceived:"+cmds[2]+":"+hash);
+			}
+
+			break;
+
+		case "sendToWellReceived" :
+			int hashToWellReveived = Integer.valueOf(cmds[1]);
+			if(hashToWellReveived != hash) {
+				if(idSuccesseur > hash) {
+					if(idSuccesseur > hashToWellReveived) {
+						sendToSuccessor("ERRORsendTo:"+cmds[2]+":"+hash+":the peers "+cmds[1]+" was not found");
+					} else {
+						sendToSuccessor(message);
+					}
+				} else {
+					if(hashToWellReveived > hash) {
+						sendToSuccessor("ERRORsendTo:"+cmds[2]+":"+hash+":the peers "+cmds[1]+" was not found");
+					}else if (hashToWellReveived > 0 && hashToWellReveived < idSuccesseur) {
+						sendToSuccessor("ERRORsendTo:"+cmds[2]+":"+hash+":the peers "+cmds[1]+" was not found");
+					} else {
+						sendToSuccessor(message);
+					}
+				}
+			} else {
+				System.out.println("The message to "+cmds[2]+"was well received.");
 			}
 
 			break;
