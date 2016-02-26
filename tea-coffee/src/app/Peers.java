@@ -146,11 +146,11 @@ public class Peers {
 			break;
 		case "findPred" :
 			key= Integer.valueOf(cmds[1]);
-			os.println(findPredecessor(key));
+			System.out.println(findPredecessor(key));
 			break;
 		case "findSucc" :
 			key = Integer.valueOf(cmds[1]);
-			os.println(findSuccessor(key));
+			System.out.println(findSuccessor(key));
 			break;
 		default:
 			System.out.println(message);
@@ -162,7 +162,9 @@ public class Peers {
 	private static void AddToNetwork(PrintStream os, BufferedReader d, Socket cs) {
 		System.out.println("Adding a peer to the network");
 		os.println("K.");
+		os.println(hash);
 		os.println(IPpredecesseur);
+		
 		IPpredecesseur = cs.getInetAddress().getHostAddress();
 		try {
 			idPredecesseur = Integer.valueOf(d.readLine());
@@ -196,7 +198,9 @@ public class Peers {
 
 			out.println("addme_pls");
 			if(in.readLine().equals("K.")) {
+				idSuccesseur = Integer.valueOf(in.readLine());
 				IPpredecesseur = in.readLine();
+				idPredecesseur = Integer.valueOf(in.readLine());
 				out.println(hash);
 			} else{
 				System.out.println("wut ?!");
@@ -208,7 +212,7 @@ public class Peers {
 
 
 		try 
-		(		Socket Precedant = new Socket(IPKnown, 2016);
+		(		Socket Precedant = new Socket(IPpredecesseur, 2016);
 				BufferedReader in = new BufferedReader(new InputStreamReader (Precedant.getInputStream()));
 				PrintStream out = new PrintStream (Precedant.getOutputStream(), true);)
 		{
