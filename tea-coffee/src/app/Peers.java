@@ -164,6 +164,13 @@ public class Peers {
 		os.println("K.");
 		os.println(hash);
 		os.println(IPpredecesseur);
+		os.println(idPredecesseur);
+		
+		/*
+		 * 
+		 * Peut-être un problème d'envois
+		 * 
+		 */
 		
 		IPpredecesseur = cs.getInetAddress().getHostAddress();
 		try {
@@ -171,6 +178,7 @@ public class Peers {
 		} catch (IOException e) {
 			System.err.println("fuck he's ded");
 		}
+		System.out.println("added");
 	}
 
 	private static void setSuccessor(PrintStream os, BufferedReader d, Socket cs) {
