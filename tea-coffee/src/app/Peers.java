@@ -115,13 +115,23 @@ public class Peers {
 		try (Scanner scan = new Scanner(System.in)) {
 			while(true) {
 				String mess = scan.nextLine();
+				switch (mess) {
+				case "sendTo":
+					System.out.println("send to Who ?");
+					
+					break;
+
+				default:
+					break;
+				}
+				/*
 				try(Socket sc = new Socket(IPsuccesseur, 2016);
 						PrintStream os = new PrintStream (sc.getOutputStream(), true);) {
 					os.println(mess);
 				}
 				catch (IOException e) {
 					System.err.println("Sending server IO Erreur");
-				}
+				}*/
 			}
 		}
 
@@ -152,6 +162,12 @@ public class Peers {
 		case "findSucc" :
 			key = Integer.valueOf(cmds[1]);
 			System.out.println(findSuccessor(key));
+			break;
+		case "sendTo" :
+			int hashTo = Integer.valueOf(cmds[1]);
+			if(hashTo != Integer.valueOf(hash)) {
+				
+			}
 			break;
 		default:
 			System.out.println(message);
