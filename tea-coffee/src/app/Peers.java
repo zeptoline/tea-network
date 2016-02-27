@@ -127,6 +127,12 @@ public class Peers {
 					sendToSuccessor(mess);
 					break;
 
+				case "who":
+					mess += ":"+hash;
+					mess += ":"+hash+";";
+					sendToSuccessor(mess);
+					break;
+
 				default:
 					if(mess.matches("sendTo:(\\d)+:"+hash+":[^:]*"))
 						sendToSuccessor(mess);
@@ -164,82 +170,54 @@ public class Peers {
 		case "later" :
 			System.out.println("fuck, he's leaving");
 			break;
-		case "sendTo" :
-			int hashTo = Integer.valueOf(cmds[1]);
+
+		case "transfert" :
+			int hashTo = Integer.valueOf(cmds[2]);
 			if(hashTo != hash) {
 				if(idSuccesseur > hash) {
 					if(idSuccesseur > hashTo) {
-						sendToSuccessor("ERRORsendTo:"+cmds[2]+":"+hash+":the peers "+cmds[1]+" was not found");
+						sendToSuccessor("transfert:ERRORsendTo:"+cmds[3]+":"+hash+":the peers "+cmds[2]+" was not found");
 					} else {
 						sendToSuccessor(message);
 					}
 				} else {
 					if(hashTo > hash) {
-						sendToSuccessor("ERRORsendTo:"+cmds[2]+":"+hash+":the peers "+cmds[1]+" was not found");
+						sendToSuccessor("transfert:ERRORsendTo:"+cmds[3]+":"+hash+":the peers "+cmds[2]+" was not found");
 					}else if (hashTo > 0 && hashTo < idSuccesseur) {
-						sendToSuccessor("ERRORsendTo:"+cmds[2]+":"+hash+":the peers "+cmds[1]+" was not found");
+						sendToSuccessor("transfert:ERRORsendTo:"+cmds[3]+":"+hash+":the peers "+cmds[2]+" was not found");
 					} else {
 						sendToSuccessor(message);
 					}
 				}
 			} else {
-				System.out.println("Received message from "+cmds[2]+" : "+cmds[3]);
-				sendToSuccessor("sendToWellReceived:"+cmds[2]+":"+hash);
-			}
-
-			break;
-
-		case "sendToWellReceived" :
-			int hashToWellReveived = Integer.valueOf(cmds[1]);
-			if(hashToWellReveived != hash) {
-				if(idSuccesseur > hash) {
-					if(idSuccesseur > hashToWellReveived) {
-						sendToSuccessor("ERRORsendTo:"+cmds[2]+":"+hash+":the peers "+cmds[1]+" was not found");
-					} else {
-						sendToSuccessor(message);
-					}
-				} else {
-					if(hashToWellReveived > hash) {
-						sendToSuccessor("ERRORsendTo:"+cmds[2]+":"+hash+":the peers "+cmds[1]+" was not found");
-					}else if (hashToWellReveived > 0 && hashToWellReveived < idSuccesseur) {
-						sendToSuccessor("ERRORsendTo:"+cmds[2]+":"+hash+":the peers "+cmds[1]+" was not found");
-					} else {
-						sendToSuccessor(message);
-					}
+				if(cmds[1].equals("sendTo")) 
+				{
+					System.out.println("Received message from "+cmds[3]+" : "+cmds[4]);
+					sendToSuccessor("transfert:sendToWellReceived:"+cmds[4]+":"+hash);
+				} 
+				else if(cmds[1].equals("sendToWellReceived")) 
+				{
+					System.out.println("The message to "+cmds[2]+"was well received.");
+				} 
+				else if(cmds[1].equals("ERRRORsendTo")) 
+				{
+					System.err.println(cmds[3]);
 				}
-			} else {
-				System.out.println("The message to "+cmds[2]+"was well received.");
 			}
 
 			break;
-		case "ERRRORsendTo" :
-			int hashToErr = Integer.valueOf(cmds[1]);
-			if(hashToErr != hash) {
-				if(idSuccesseur > hash) {
-					if(idSuccesseur > hashToErr) {
-						sendToSuccessor("ERRORsendTo:"+cmds[2]+":"+hash+":the peers "+cmds[1]+" was not found");
-						System.out.println("Le receveur du message : "+message+" n'existe pas");
-					} else {
-						sendToSuccessor(message);
-					}
-				} else {
-					if(hashToErr > hash) {
-						sendToSuccessor("ERRORsendTo:"+cmds[2]+":"+hash+":the peers "+cmds[1]+" was not found");
-						System.out.println("Le receveur du message : "+message+" n'existe pas");
-					}else if (hashToErr > 0 && hashToErr < idSuccesseur) {
-						sendToSuccessor("ERRORsendTo:"+cmds[2]+":"+hash+":the peers "+cmds[1]+" was not found");
-						System.out.println("Le receveur du message : "+message+" n'existe pas");
-					} else {
-						sendToSuccessor(message);
-					}
-				}
-			} else {
-				System.err.println(cmds[3]);
-			}
 
-			break;
+		case "who":
+			int hashfrom = Integer.valueOf(cmds[1]);
+			if(hashfrom != hash) {
+				sendToSuccessor(message+hash+";");
+			} else {
+				System.out.println("list of hashes  :"+cmds[2]);
+			}
+			
+			
 		default:
-			System.out.println(message);
+			//System.out.println(message);
 			break;
 		}
 	}
