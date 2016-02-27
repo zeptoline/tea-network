@@ -11,7 +11,7 @@ import java.net.UnknownHostException;
 import java.util.Scanner;
 
 public class Peers {
-	private static final String IP_SERVEUR = "localhost";
+	private static final String IP_SERVEUR = "192.168.0.10";
 
 	private static int hash = -1;
 
@@ -124,7 +124,7 @@ public class Peers {
 					mess += ":"+hash;
 					System.out.println("What'd you wanna send ?");
 					mess += ":"+(scan.nextLine().replaceAll(":", " "));
-					sendToSuccessor(mess);
+					sendToSuccessor("transfert:"+mess);
 					break;
 
 				case "who":
@@ -135,7 +135,7 @@ public class Peers {
 
 				default:
 					if(mess.matches("sendTo:(\\d)+:"+hash+":[^:]*"))
-						sendToSuccessor(mess);
+						sendToSuccessor("transfert:"+mess);
 					else {
 						System.out.println("usage :");
 						System.out.println("sendTo:[HashTo]:[YourHash]:[message]");
