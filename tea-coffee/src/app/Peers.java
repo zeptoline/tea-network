@@ -45,10 +45,10 @@ public class Peers {
 		(		Socket hashSocket = new Socket(IP_SERVEUR, 8001);
 				BufferedReader hashEntree = new BufferedReader(new InputStreamReader (hashSocket.getInputStream()));
 				PrintStream hashSortie = new PrintStream (hashSocket.getOutputStream(), true);)
-		{
+				{
 			hashSortie.println(ip);
 			hash = Integer.valueOf(hashEntree.readLine());
-		} 	
+				} 	
 		catch(UnknownHostException e) {System.err.println("unknown host"); return;}
 		catch ( IOException e ) {System.err.println("erreur I/O HashServer"); return;}
 
@@ -57,7 +57,7 @@ public class Peers {
 				BufferedReader entree = new BufferedReader(new InputStreamReader (WSsock.getInputStream()));
 				PrintStream sortie = new PrintStream (WSsock.getOutputStream(), true);
 				)
-		{
+				{
 			String connec = "yo:"+hash+":"+ip;
 			sortie.println(connec);
 
@@ -82,7 +82,7 @@ public class Peers {
 				System.err.println("The connexion failed");
 				return;
 			}
-		} 	
+				} 	
 		catch(UnknownHostException e) {System.err.println("unknown host"); return;}
 		catch ( IOException e ) {System.err.println("erreur I/O Welcome Server"); return;}
 
@@ -96,14 +96,14 @@ public class Peers {
 								BufferedReader d = new BufferedReader(new InputStreamReader(cs.getInputStream()));
 								PrintStream os = new PrintStream (cs.getOutputStream(), true);
 								) 
-						{
+								{
 							String message = "";
 							while((message = d.readLine())!= null) 
 							{
 								TreatMessage(message, os, d, cs);
 
 							}
-						}
+								}
 						catch (IOException e) {
 							System.err.println("Listening server IO Erreur");
 						}
@@ -130,6 +130,13 @@ public class Peers {
 				case "who":
 					mess += ":"+hash;
 					mess += ":"+hash+";";
+					sendToSuccessor(mess);
+					break;
+
+
+				case "bye":
+					mess += ":"+idPredecesseur;
+					mess += ":"+IPpredecesseur;
 					sendToSuccessor(mess);
 					break;
 
@@ -167,10 +174,8 @@ public class Peers {
 				break;
 			}
 			break;
-		case "later" :
-			System.out.println("fuck, he's leaving");
-			break;
 
+			//transfert ::  transfert:[typeTransfert]:[hashTo]:[hashFrom]:[message]
 		case "transfert" :
 			int hashTo = Integer.valueOf(cmds[2]);
 			if(hashTo != hash) {
@@ -214,8 +219,21 @@ public class Peers {
 			} else {
 				System.out.println("list of hashes  :"+cmds[2]);
 			}
-			
-			
+			break;
+
+		case "bye":
+			idPredecesseur = Integer.valueOf(cmds[1]);
+			IPpredecesseur = cmds[2];
+			sendToPredecessor("newSuccessor:"+hash+":"+ip);
+			break;
+
+
+		case "newSuccessor":
+			idSuccesseur = Integer.valueOf(cmds[1]);
+			IPsuccesseur = cmds[2];
+			break;
+
+
 		default:
 			//System.out.println(message);
 			break;
@@ -263,7 +281,7 @@ public class Peers {
 		(		Socket clientPresent = new Socket(IPKnown, 2016);
 				BufferedReader in = new BufferedReader(new InputStreamReader (clientPresent.getInputStream()));
 				PrintStream out = new PrintStream (clientPresent.getOutputStream(), true);)
-		{
+				{
 
 			out.println("init:addme_pls");
 			if(in.readLine().equals("K.")) {
@@ -275,7 +293,7 @@ public class Peers {
 				System.out.println("wut ?!");
 			}
 
-		} 	
+				} 	
 		catch(UnknownHostException e) {System.err.println("unknown host"); return;}
 		catch ( IOException e ) {System.err.println("I/O error joining known host"); return;}
 
@@ -284,7 +302,7 @@ public class Peers {
 		(		Socket Suivant = new Socket(IPpredecesseur, 2016);
 				BufferedReader in = new BufferedReader(new InputStreamReader (Suivant.getInputStream()));
 				PrintStream out = new PrintStream (Suivant.getOutputStream(), true);)
-		{
+				{
 
 			out.println("init:Hey Im new");
 			if(in.readLine().equals("hash pls?")) {
@@ -292,7 +310,7 @@ public class Peers {
 			} else{
 				System.out.println("wut ?!");
 			}
-		} 	
+				} 	
 		catch(UnknownHostException e) {System.err.println("unknown host"); return;}
 		catch ( IOException e ) {System.err.println("I/O error joining predecessor host"); return;}
 	}
@@ -307,7 +325,15 @@ public class Peers {
 			System.err.println("Sending server IO Erreur");
 		}
 	}
-
+	public static void sendToPredecessor(String message) {
+		try(Socket sc = new Socket(IPpredecesseur, 2016);
+				PrintStream os = new PrintStream (sc.getOutputStream(), true);) {
+			os.println(message);
+		}
+		catch (IOException e) {
+			System.err.println("Sending server IO Erreur");
+		}
+	}
 
 
 	/*
