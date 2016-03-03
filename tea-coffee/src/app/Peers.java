@@ -235,7 +235,7 @@ public class Peers {
 			System.out.println(message);
 			int hashfrom2 = Integer.valueOf(cmds[1]);
 			if(hashfrom2 != hash) {
-				sendToSuccessor(message+hash+";");
+				sendToSuccessor(message+hash+"-"+ip+";");
 			} else {
 				refreshFinger(cmds[2]);
 			}
@@ -361,7 +361,19 @@ public class Peers {
 	public static void refreshFinger(String message) {
 		System.out.println("Refreshing Routing Table");
 		finger.clear();
-		String[] allHashes = message.split(";");
+		
+		String[] hashIP = message.split(";");
+		
+		String[] allHashes = {};
+		String[] allIP = {};
+		for (String  string: hashIP) {
+			String[] splitted = string.split("-");
+			allHashes[allHashes.length]  = splitted[0];
+			allIP[allIP.length] = splitted[1];
+		}
+		
+		
+		
 		int max = (int) Math.log(SERVER_SIZE);
 		int puissance = 0;
 		for (int i = 1; i < max; i++) {
@@ -369,18 +381,25 @@ public class Peers {
 			puissance = (hash + (int)Math.pow(2, i));
 			endLoop = puissance > SERVER_SIZE;
 			int hashI = 0;
-			
+			int index = -1;
 			for (String hashS : allHashes) {
+				index++;
 				hashI = Integer.valueOf(hashS);
 				if(!endLoop) {
 					if (hashI >= puissance) {
-						finger.put(hashI, "");
+						
+						
+						if(!finger.containsKey(hashI))
+							finger.put(hashI, allIP[index]);
 						break;
 					}
 				} else {
 					if(hashI < hash) {
 						if (hashI + SERVER_SIZE >= puissance) {
-							finger.put(hashI, "");
+							
+							
+							if(!finger.containsKey(hashI))
+								finger.put(hashI, allIP[index]);
 							break;
 						}
 					}
@@ -388,10 +407,13 @@ public class Peers {
 			}
 			
 			for (int key : finger.keySet()) {
-				System.out.println(key);
+				System.out.print(key+" : ");
+				System.out.println(finger.get(key));
 			}
 			
 		}
 	}
+
+
 
 }
