@@ -138,8 +138,7 @@ public class Peers {
 					break;
 
 				case "refresh":
-					mess += ":"+hash;
-					mess += ":"+hash+";";
+					mess += ":"+hash+":";
 					sendToSuccessor(mess);
 					break;
 
@@ -233,6 +232,7 @@ public class Peers {
 			break;
 
 		case "refresh":
+			System.out.println(message);
 			int hashfrom2 = Integer.valueOf(cmds[1]);
 			if(hashfrom2 != hash) {
 				sendToSuccessor(message+hash+";");
@@ -359,6 +359,7 @@ public class Peers {
 	
 	
 	public static void refreshFinger(String message) {
+		System.out.println("Refreshing Routing Table");
 		finger.clear();
 		String[] allHashes = message.split(";");
 		int max = (int) Math.log(SERVER_SIZE);
