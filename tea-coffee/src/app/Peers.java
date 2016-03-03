@@ -11,7 +11,7 @@ import java.net.UnknownHostException;
 import java.util.Scanner;
 
 public class Peers {
-	private static final String IP_SERVEUR = "192.168.0.10";
+	private static final String IP_SERVEUR = "172.21.65.13";
 
 	private static int hash = -1;
 
@@ -177,6 +177,7 @@ public class Peers {
 
 			//transfert ::  transfert:[typeTransfert]:[hashTo]:[hashFrom]:[message]
 		case "transfert" :
+			System.out.println(message);
 			int hashTo = Integer.valueOf(cmds[2]);
 			if(hashTo != hash) {
 				if(idSuccesseur > hash) {
@@ -198,7 +199,7 @@ public class Peers {
 				if(cmds[1].equals("sendTo")) 
 				{
 					System.out.println("Received message from "+cmds[3]+" : "+cmds[4]);
-					sendToSuccessor("transfert:sendToWellReceived:"+cmds[4]+":"+hash);
+					sendToSuccessor("transfert:sendToWellReceived:"+cmds[3]+":"+hash);
 				} 
 				else if(cmds[1].equals("sendToWellReceived")) 
 				{
