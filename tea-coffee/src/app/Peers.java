@@ -168,7 +168,7 @@ public class Peers {
 				break;
 
 			case "Hey Im new" :
-				setPredecesseur(os, d, cs);
+				setSuccessor(os, d, cs);
 				break;
 			default:
 				break;
@@ -201,13 +201,13 @@ public class Peers {
 					System.out.println("Received message from "+cmds[3]+" : "+cmds[4]);
 					sendToSuccessor("transfert:sendToWellReceived:"+cmds[3]+":"+hash);
 				} 
-				else if(cmds[1].equals("sendToWellReceived")) 
+				if(cmds[1].equals("sendToWellReceived")) 
 				{
-					System.out.println("The message to "+cmds[2]+"was well received.");
+					System.out.println("The message to "+cmds[3]+" was well received.");
 				} 
-				else if(cmds[1].equals("ERRRORsendTo")) 
+				if(cmds[1].equals("ERRORsendTo")) 
 				{
-					System.err.println(cmds[3]);
+					System.err.println(cmds[4]);
 				}
 			}
 
@@ -246,38 +246,38 @@ public class Peers {
 		System.out.println("Adding a peer to the network");
 		os.println("K.");
 		os.println(hash);
-		os.println(IPsuccesseur);
-		os.println(idSuccesseur);
+		os.println(IPpredecesseur);
+		os.println(idPredecesseur);
 
 
 
-		IPsuccesseur = cs.getInetAddress().getHostAddress();
+		IPpredecesseur = cs.getInetAddress().getHostAddress();
 		try {
-			idSuccesseur = Integer.valueOf(d.readLine());
+			idPredecesseur = Integer.valueOf(d.readLine());
 		} catch (IOException e) {
 			System.err.println("fuck he's ded");
 		}
 		System.out.println("Peer added to the network");
 	}
 
-	private static void setPredecesseur(PrintStream os, BufferedReader d, Socket cs) {
-		System.out.println("Setting new predecessor");
-		IPpredecesseur = cs.getInetAddress().getHostAddress();
+	private static void setSuccessor(PrintStream os, BufferedReader d, Socket cs) {
+		System.out.println("Setting new successor");
+		IPsuccesseur = cs.getInetAddress().getHostAddress();
 		os.println("hash pls?");
 		try {
-			idPredecesseur = Integer.valueOf(d.readLine());
+			idSuccesseur = Integer.valueOf(d.readLine());
 		} catch (IOException e) {
 			System.err.println("fuck he's ded");
 		}
-		System.out.println("Predecessor added");
+		System.out.println("Successor added");
 	}
 
 
 	private static void ClientJoining(String IPKnown) {
 		System.out.println("Trying to join the server");
 
-		IPpredecesseur = IPKnown;
-
+		IPsuccesseur = IPKnown;
+		
 		try 
 		(		Socket clientPresent = new Socket(IPKnown, 2016);
 				BufferedReader in = new BufferedReader(new InputStreamReader (clientPresent.getInputStream()));
@@ -286,9 +286,9 @@ public class Peers {
 
 			out.println("init:addme_pls");
 			if(in.readLine().equals("K.")) {
-				idPredecesseur = Integer.valueOf(in.readLine());
-				IPsuccesseur = in.readLine();
 				idSuccesseur = Integer.valueOf(in.readLine());
+				IPpredecesseur = in.readLine();
+				idPredecesseur = Integer.valueOf(in.readLine());
 				out.println(hash);
 			} else{
 				System.out.println("wut ?!");
@@ -300,14 +300,14 @@ public class Peers {
 
 
 		try 
-		(		Socket Suivant = new Socket(IPpredecesseur, 2016);
-				BufferedReader in = new BufferedReader(new InputStreamReader (Suivant.getInputStream()));
-				PrintStream out = new PrintStream (Suivant.getOutputStream(), true);)
+		(		Socket pred = new Socket(IPpredecesseur, 2016);
+				BufferedReader in = new BufferedReader(new InputStreamReader (pred.getInputStream()));
+				PrintStream out = new PrintStream (pred.getOutputStream(), true);)
 				{
 
 			out.println("init:Hey Im new");
 			if(in.readLine().equals("hash pls?")) {
-				out.println(hash);				
+				out.println(hash);	
 			} else{
 				System.out.println("wut ?!");
 			}
