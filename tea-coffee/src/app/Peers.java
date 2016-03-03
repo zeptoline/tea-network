@@ -8,6 +8,7 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
 
@@ -364,12 +365,12 @@ public class Peers {
 		
 		String[] hashIP = message.split(";");
 		
-		String[] allHashes = {};
-		String[] allIP = {};
+		ArrayList<String> allHash = new ArrayList<String>();
+		ArrayList<String> allIP = new ArrayList<String>();
 		for (String  string: hashIP) {
 			String[] splitted = string.split("-");
-			allHashes[allHashes.length]  = splitted[0];
-			allIP[allIP.length] = splitted[1];
+			allHash.add(splitted[0]);
+			allIP.add( splitted[1]);
 		}
 		
 		
@@ -382,7 +383,8 @@ public class Peers {
 			endLoop = puissance > SERVER_SIZE;
 			int hashI = 0;
 			int index = -1;
-			for (String hashS : allHashes) {
+			for (String hashS : allHash) {
+				System.out.println(hashS);
 				index++;
 				hashI = Integer.valueOf(hashS);
 				if(!endLoop) {
@@ -390,7 +392,7 @@ public class Peers {
 						
 						
 						if(!finger.containsKey(hashI))
-							finger.put(hashI, allIP[index]);
+							finger.put(hashI, allIP.get(index));
 						break;
 					}
 				} else {
@@ -399,7 +401,7 @@ public class Peers {
 							
 							
 							if(!finger.containsKey(hashI))
-								finger.put(hashI, allIP[index]);
+								finger.put(hashI, allIP.get(index));
 							break;
 						}
 					}
