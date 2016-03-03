@@ -8,13 +8,16 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.HashMap;
 import java.util.Scanner;
 
 public class Peers {
 	private static final String IP_SERVEUR = "172.21.65.13";
+	private static final int SERVER_SIZE = 100;
 
 	private static int hash = -1;
 
+	private static HashMap<Integer, String> finger = new HashMap<Integer, String>();
 	private static String IPsuccesseur = "";
 	private static int idSuccesseur;
 	private static String IPpredecesseur = "";
@@ -66,6 +69,7 @@ public class Peers {
 				System.out.println("You're the first on the network");
 				IPsuccesseur = ip;
 				idSuccesseur = hash;
+				finger.put(hash, ip);
 				IPpredecesseur = ip;
 				idPredecesseur = hash;
 				System.out.println("Your hash : "+hash);
@@ -128,6 +132,12 @@ public class Peers {
 					break;
 
 				case "who":
+					mess += ":"+hash;
+					mess += ":"+hash+";";
+					sendToSuccessor(mess);
+					break;
+
+				case "refresh":
 					mess += ":"+hash;
 					mess += ":"+hash+";";
 					sendToSuccessor(mess);
@@ -222,6 +232,14 @@ public class Peers {
 			}
 			break;
 
+		case "refresh":
+			int hashfrom2 = Integer.valueOf(cmds[1]);
+			if(hashfrom2 != hash) {
+				sendToSuccessor(message+hash+";");
+			} else {
+				refreshFinger(cmds[2]);
+			}
+			break;
 		case "bye":
 			idPredecesseur = Integer.valueOf(cmds[1]);
 			IPpredecesseur = cmds[2];
@@ -232,6 +250,7 @@ public class Peers {
 		case "newSuccessor":
 			idSuccesseur = Integer.valueOf(cmds[1]);
 			IPsuccesseur = cmds[2];
+			finger.put(idSuccesseur, IPsuccesseur);
 			break;
 
 
@@ -269,6 +288,7 @@ public class Peers {
 		} catch (IOException e) {
 			System.err.println("fuck he's ded");
 		}
+		finger.put(idSuccesseur, IPsuccesseur);
 		System.out.println("Successor added");
 	}
 
@@ -289,6 +309,7 @@ public class Peers {
 				idSuccesseur = Integer.valueOf(in.readLine());
 				IPpredecesseur = in.readLine();
 				idPredecesseur = Integer.valueOf(in.readLine());
+				finger.put(idSuccesseur, IPsuccesseur);
 				out.println(hash);
 			} else{
 				System.out.println("wut ?!");
@@ -335,19 +356,41 @@ public class Peers {
 			System.err.println("Sending server IO Erreur");
 		}
 	}
-
-
-	/*
-	 * 
-	 * Pour enlever le warning..
-	 */
-	public static int getIdPredecesseur() {
-		return idPredecesseur;
+	
+	
+	public static void refreshFinger(String message) {
+		finger.clear();
+		String[] allHashes = message.split(";");
+		int max = (int) Math.log(SERVER_SIZE);
+		int puissance = 0;
+		for (int i = 1; i < max; i++) {
+			boolean endLoop = false;
+			puissance = (hash + (int)Math.pow(2, i));
+			endLoop = puissance > SERVER_SIZE;
+			int hashI = 0;
+			
+			for (String hashS : allHashes) {
+				hashI = Integer.valueOf(hashS);
+				if(!endLoop) {
+					if (hashI >= puissance) {
+						finger.put(hashI, "");
+						break;
+					}
+				} else {
+					if(hashI < hash) {
+						if (hashI + SERVER_SIZE >= puissance) {
+							finger.put(hashI, "");
+							break;
+						}
+					}
+				}
+			}
+			
+			for (int key : finger.keySet()) {
+				System.out.println(key);
+			}
+			
+		}
 	}
-
-
-
-
-
 
 }
