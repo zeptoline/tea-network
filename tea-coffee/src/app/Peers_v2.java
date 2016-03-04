@@ -114,6 +114,7 @@ public class Peers_v2 {
 	//message format :
 	//[command]:[hashTo]:[hashHrom]:[IPFrom]:[message]
 	private static void TreatMessage(String message, PrintStream os, BufferedReader d, Socket cs) {
+		System.out.println("new message : "+message);
 		String[] cmds = message.split(":");
 		switch (cmds[0]) {
 		case "addme":			
@@ -159,9 +160,9 @@ public class Peers_v2 {
 
 	private static boolean ClientJoining(String IPKnown) {
 		boolean ret = true;
-		System.out.println("Trying to join the server");
 		//[command]:[hashTo]:[hashHrom]:[IPFrom]:[message]
 
+		System.out.println("Looking for Successor...");
 		String[] result = (getResponseIP(IPKnown, "getSucc:"+":"+hash+":"+hash+":"+ip)).split("-");
 		idSuccesseur = PeersUtility.safeParseInt(result[0]);
 		IPsuccesseur = result[1];
@@ -170,13 +171,15 @@ public class Peers_v2 {
 			ret = false;
 		}
 		
-		
+
+		System.out.println("Getting Predecessor...");
 		result = null;
 		//idSuccesseur ne sert à rien dans cette envois, mais c'est par soucis de respecter le format des messages
 		result = (getResponseIP(IPsuccesseur, "addme:"+idSuccesseur+":"+hash+":"+ip)).split("-");
 		idPredecesseur = PeersUtility.safeParseInt(result[0]);
 		IPpredecesseur = result[1];
 
+		System.out.println("Updating Predecessor...");
 		sendToIP(IPpredecesseur, "newSucc:"+idSuccesseur+":"+hash+":"+ip);
 		
 		return ret;

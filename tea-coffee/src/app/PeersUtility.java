@@ -19,10 +19,23 @@ public class PeersUtility {
 			System.err.println("Sending server IO Erreur");
 		}
 	}
+	
+	
+	private static void sendToIP(String IP, String message, int port) {
+
+
+		try(Socket sc = new Socket(IP, port);
+				PrintStream os = new PrintStream (sc.getOutputStream(), true);) {
+			os.println(message);
+		}
+		catch (IOException e) {
+			System.err.println("Sending server IO Erreur");
+		}
+	}
 
 
 	public static String getResponseIP(String IP, String message) {
-		sendToIP(IP, message);
+		sendToIP(IP, message, 2016);
 		String response = "";
 
 		try(ServerSocket responseGetter = new ServerSocket(2017); 
