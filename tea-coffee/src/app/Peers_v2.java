@@ -8,6 +8,7 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
 
@@ -18,6 +19,7 @@ public class Peers_v2 {
 	private static int hash = -1;
 
 	private static HashMap<Integer, String> finger = new HashMap<Integer, String>();
+	private static ArrayList<String> finger_moniteur = new ArrayList<String>();
 	private static String IPsuccesseur = "";
 	private static int idSuccesseur;
 	private static String IPpredecesseur = "";
@@ -71,6 +73,7 @@ public class Peers_v2 {
 				IPsuccesseur = ip;
 				idSuccesseur = hash;
 				finger.put(hash, ip);
+				finger_moniteur.add(hash+":"+hash+":"+ip);
 				IPpredecesseur = ip;
 				idPredecesseur = hash;
 				System.out.println("Your hash : "+hash);
@@ -103,8 +106,21 @@ public class Peers_v2 {
 		});
 		te.start();
 
+		Thread monitor = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				monitorListener();
+			}
+		});
+		monitor.start();
+
+
 		scanCommandLine();
+
 	}
+
+
+
 
 
 
@@ -129,6 +145,7 @@ public class Peers_v2 {
 			IPsuccesseur = cmds[3];
 			idSuccesseur = PeersUtility.safeParseInt(cmds[2]);
 			finger.put(idSuccesseur, IPsuccesseur);
+			finger_moniteur.add(hash+":"+idSuccesseur+":"+IPsuccesseur);
 			System.out.println("Successor has been updated - new Successor : "+idSuccesseur);
 			break;
 
@@ -192,6 +209,7 @@ public class Peers_v2 {
 		idSuccesseur = PeersUtility.safeParseInt(result[0]);
 		IPsuccesseur = result[1];
 		finger.put(idSuccesseur, IPsuccesseur);
+		finger_moniteur.add(hash+":"+idSuccesseur+":"+IPsuccesseur);
 		if(idSuccesseur == hash){
 			System.err.println("hash already taken");
 			ret = false;
@@ -246,17 +264,18 @@ public class Peers_v2 {
 	public static void refreshFinger() {
 		System.out.println("Refreshing Routing Table");
 		finger.clear();
+		finger_moniteur.clear();
 
-		int max = (int) Math.log(SERVER_SIZE);
+		int max = (int) (Math.log(SERVER_SIZE) / Math.log(2));
 		int puissance = 0;
-		for (int i = 0; i < max; i++) {
+		for (int i = 0; i <= max; i++) {
 			puissance = (hash + (int)Math.pow(2, i)) % SERVER_SIZE;
-
 			String[] result = (getResponseIP("localhost", "getSucc:"+puissance+":"+hash+":"+ip)).split("-");
 			int hp = PeersUtility.safeParseInt(result[0]);
-			
+
 			finger.put(hp, result[1]);
-			
+			finger_moniteur.add(puissance+":"+hp+":"+result[1]);
+
 		}
 		for (int key : finger.keySet()) {
 			System.out.print(key+" : ");
@@ -306,8 +325,27 @@ public class Peers_v2 {
 
 	}
 
-
-
+	protected static void monitorListener() {
+		try(ServerSocket ss = new ServerSocket(8002);){
+			while(true) {
+				try(Socket cs = ss.accept();
+						BufferedReader d = new BufferedReader(new InputStreamReader(cs.getInputStream()));
+						PrintStream os = new PrintStream (cs.getOutputStream(), true);
+						) 
+				{
+					System.out.println("Starting sending routing table");
+					d.readLine();
+					for (String key : finger_moniteur) {
+						os.println(key);
+					}
+					os.println("end");
+				}
+				catch (IOException e) {
+					System.err.println("Monitor server IO Erreur");
+				}
+			}
+		}catch (IOException e) {System.err.println("erreur starting monitor server"); return;}
+	}
 
 	private static void scanCommandLine() {
 		try (Scanner scan = new Scanner(System.in)) {

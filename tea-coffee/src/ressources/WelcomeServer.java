@@ -28,14 +28,10 @@ public class WelcomeServer {
 	@SuppressWarnings("finally")
 	private static int safeParseInt(String i) {
 
-		System.out.println("la string est : " + i + "\n");
-
-
 		int res = -1;
 
 		try {
 			res = Integer.parseInt(i);
-			System.out.println("res : " + res + "\n");
 		} finally {
 			return res;
 		}
