@@ -13,7 +13,7 @@ import java.util.Scanner;
 
 public class Peers_v2 {
 	private static final String IP_SERVEUR = "192.168.0.10";
-	//private static final int SERVER_SIZE = 100;
+	private static final int SERVER_SIZE = 100;
 
 	private static int hash = -1;
 
@@ -67,7 +67,7 @@ public class Peers_v2 {
 
 			String entreeLue = entree.readLine();
 			if(entreeLue.equals("yaf")) { 
-				System.out.println("You're the first on the network");
+				System.out.println("You're first on the network");
 				IPsuccesseur = ip;
 				idSuccesseur = hash;
 				finger.put(hash, ip);
@@ -96,9 +96,6 @@ public class Peers_v2 {
 		catch ( IOException e ) {System.err.println("erreur I/O Welcome Server"); return;}
 
 
-
-
-
 		Thread te = new Thread(new Runnable() {
 			public void run() {
 				serverListener();
@@ -114,9 +111,11 @@ public class Peers_v2 {
 	//message format :
 	//[command]:[hashTo]:[hashHrom]:[IPFrom]:[message]
 	private static void TreatMessage(String message, PrintStream os, BufferedReader d, Socket cs) {
-		System.out.println("new message : "+message);
 		String[] cmds = message.split(":");
 		switch (cmds[0]) {
+		/*
+		 * Init messages
+		 */
 		case "addme":			
 			sendResponse(cmds[3], idPredecesseur+"-"+IPpredecesseur);
 
@@ -129,11 +128,12 @@ public class Peers_v2 {
 		case "newSucc" :
 			IPsuccesseur = cmds[3];
 			idSuccesseur = PeersUtility.safeParseInt(cmds[2]);
+			finger.put(idSuccesseur, IPsuccesseur);
 			System.out.println("Successor has been updated - new Successor : "+idSuccesseur);
 			break;
 
 		case "getSucc":
-			int hashToGet = Integer.valueOf(cmds[2]);
+			int hashToGet = Integer.valueOf(cmds[1]);
 			if(idSuccesseur > hash && hashToGet < idSuccesseur)
 				sendResponse(cmds[3], idSuccesseur+"-"+IPsuccesseur);
 			else if(idSuccesseur < hash && (hashToGet > hash || (hashToGet > 0 && hashToGet < idSuccesseur)))
@@ -146,6 +146,10 @@ public class Peers_v2 {
 				passToSuccessor(message);
 			break;
 
+
+			/*
+			 * Clients messages 
+			 */
 		case "transmit" :
 			int hashTo = PeersUtility.safeParseInt(cmds[1]);
 			if(hashTo != hash) {
@@ -182,12 +186,12 @@ public class Peers_v2 {
 
 	private static boolean ClientJoining(String IPKnown) {
 		boolean ret = true;
-		//[command]:[hashTo]:[hashHrom]:[IPFrom]:[message]
 
 		System.out.println("Looking for Successor...");
 		String[] result = (getResponseIP(IPKnown, "getSucc:"+hash+":"+hash+":"+ip)).split("-");
 		idSuccesseur = PeersUtility.safeParseInt(result[0]);
 		IPsuccesseur = result[1];
+		finger.put(idSuccesseur, IPsuccesseur);
 		if(idSuccesseur == hash){
 			System.err.println("hash already taken");
 			ret = false;
@@ -196,6 +200,7 @@ public class Peers_v2 {
 
 		System.out.println("Getting Predecessor...");
 		result = null;
+
 		//idSuccesseur ne sert à rien dans cette envois, mais c'est par soucis de respecter le format des messages
 		result = (getResponseIP(IPsuccesseur, "addme:"+idSuccesseur+":"+hash+":"+ip)).split("-");
 		idPredecesseur = PeersUtility.safeParseInt(result[0]);
@@ -225,13 +230,47 @@ public class Peers_v2 {
 
 
 	private static String getResponse(String command, int hashTo, String message) {
-		String send = command+":"+hashTo+":"+hash+":"+ip+":"+message.replace(":", " ");
+		String send = command+":"+hashTo+":"+hash+":"+ip+":"+message;
 		return PeersUtility.getResponseIP(IPsuccesseur, send);
 	}
 
 	private static String getResponseIP(String IP, String message) {
 		return PeersUtility.getResponseIP(IP, message);
 	}
+
+
+
+
+
+
+	public static void refreshFinger() {
+		System.out.println("Refreshing Routing Table");
+		finger.clear();
+
+		int max = (int) Math.log(SERVER_SIZE);
+		int puissance = 0;
+		for (int i = 0; i < max; i++) {
+			puissance = (hash + (int)Math.pow(2, i)) % SERVER_SIZE;
+
+			String[] result = (getResponseIP("localhost", "getSucc:"+puissance+":"+hash+":"+ip)).split("-");
+			int hp = PeersUtility.safeParseInt(result[0]);
+			
+			finger.put(hp, result[1]);
+			
+		}
+		for (int key : finger.keySet()) {
+			System.out.print(key+" : ");
+			System.out.println(finger.get(key));
+		}
+	}
+
+
+
+
+
+
+
+
 
 
 
@@ -285,12 +324,16 @@ public class Peers_v2 {
 				case "transmit" :
 					System.out.println("Hash to send to : ");
 					int hashTo = scan.nextInt();
+					scan.nextLine();
 					System.out.println("What to send : ");
-					String send = scan.nextLine();
-					getResponse("transmit", hashTo, send);
+					String message = scan.nextLine();
+					System.out.println(getResponse("transmit", hashTo, message));
 					break;
 				case "who" :
 					passToSuccessor("who:"+hash+":"+hash);
+					break;
+				case "refresh" :
+					refreshFinger();
 					break;
 				default:
 					break;
