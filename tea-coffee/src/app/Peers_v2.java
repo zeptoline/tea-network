@@ -182,7 +182,7 @@ public class Peers_v2 {
 		IPpredecesseur = result[1];
 
 		System.out.println("Updating Predecessor...");
-		sendToIP(IPpredecesseur, "newSucc:"+idSuccesseur+":"+hash+":"+ip);
+		sendToIP(IPpredecesseur, "newSucc:"+idSuccesseur+":"+hash+":"+ip, 2016);
 
 		return ret;
 	}
@@ -191,9 +191,11 @@ public class Peers_v2 {
 
 
 
-
 	private static void sendToIP(String IP, String message) {
-		PeersUtility.sendToIP(IP, message);
+		PeersUtility.sendToIP(IP, message, 2017);
+	}
+	private static void sendToIP(String IP, String message, int port) {
+		PeersUtility.sendToIP(IP, message, port);
 	}
 	private static void passToSuccessor(String message) {
 		PeersUtility.sendToIP(IPsuccesseur, message);

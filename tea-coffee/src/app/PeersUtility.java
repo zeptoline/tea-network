@@ -21,7 +21,7 @@ public class PeersUtility {
 	}
 	
 	
-	private static void sendToIP(String IP, String message, int port) {
+	public static void sendToIP(String IP, String message, int port) {
 
 
 		try(Socket sc = new Socket(IP, port);
