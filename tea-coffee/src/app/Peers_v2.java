@@ -125,13 +125,13 @@ public class Peers_v2 {
 
 			System.out.println("New Peer added to the network");
 			break;
-			
+
 		case "newSucc" :
 			IPsuccesseur = cmds[3];
 			idSuccesseur = PeersUtility.safeParseInt(cmds[2]);
 			System.out.println("Successor has been updated - new Successor : "+idSuccesseur);
 			break;
-			
+
 		case "getSucc":
 			int hashToGet = Integer.valueOf(cmds[2]);
 			if(idSuccesseur > hash && hashToGet < idSuccesseur)
@@ -140,6 +140,8 @@ public class Peers_v2 {
 				sendToIP(cmds[3], idSuccesseur+"-"+IPsuccesseur);
 			else if (idSuccesseur == hashToGet)
 				sendToIP(cmds[3], idSuccesseur+"-"+IPsuccesseur);
+			else if (idSuccesseur == hash)
+				sendToIP(cmds[3], hash+"-"+ip);
 			else
 				passToSuccessor(message);
 			break;
@@ -163,14 +165,14 @@ public class Peers_v2 {
 		//[command]:[hashTo]:[hashHrom]:[IPFrom]:[message]
 
 		System.out.println("Looking for Successor...");
-		String[] result = (getResponseIP(IPKnown, "getSucc:"+":"+hash+":"+hash+":"+ip)).split("-");
+		String[] result = (getResponseIP(IPKnown, "getSucc:"+hash+":"+hash+":"+ip)).split("-");
 		idSuccesseur = PeersUtility.safeParseInt(result[0]);
 		IPsuccesseur = result[1];
 		if(idSuccesseur == hash){
 			System.err.println("hash already taken");
 			ret = false;
 		}
-		
+
 
 		System.out.println("Getting Predecessor...");
 		result = null;
@@ -181,7 +183,7 @@ public class Peers_v2 {
 
 		System.out.println("Updating Predecessor...");
 		sendToIP(IPpredecesseur, "newSucc:"+idSuccesseur+":"+hash+":"+ip);
-		
+
 		return ret;
 	}
 
@@ -231,7 +233,6 @@ public class Peers_v2 {
 					String message = "";
 					while((message = d.readLine())!= null) 
 					{
-						System.out.println("un message est arrivé sur le serveur d'écoute");
 						TreatMessage(message, os, d, cs);
 
 					}
@@ -249,8 +250,14 @@ public class Peers_v2 {
 
 		try (Scanner scan = new Scanner(System.in)) {
 			while(true) {
-
+				
 				String mess = scan.nextLine();
+				if(mess.equals("info")) {
+					System.out.println("IP Succ : " +IPsuccesseur);
+					System.out.println("Id Succ : " +idSuccesseur);
+					System.out.println("IP Pred : " +IPpredecesseur);
+					System.out.println("Id Pred : " +idPredecesseur);
+				}
 				int hashTo = scan.nextInt();
 				getResponse("transmit", hashTo, mess);
 
