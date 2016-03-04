@@ -257,6 +257,7 @@ public class Peers_v2 {
 	}
 
 	private static void sendToIP(String IP, String message) {
+		System.out.println("Un message va partir vers "+IP);
 
 		try(Socket sc = new Socket(IP, 2016);
 				PrintStream os = new PrintStream (sc.getOutputStream(), true);) {
@@ -305,6 +306,7 @@ public class Peers_v2 {
 				String message = "";
 				while((message = d.readLine())!= null) 
 				{
+					System.out.println("un message est arrivé sur le serveur d'écoute");
 					TreatMessage(message, os, d, cs);
 
 				}
