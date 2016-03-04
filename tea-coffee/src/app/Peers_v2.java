@@ -118,7 +118,7 @@ public class Peers_v2 {
 		String[] cmds = message.split(":");
 		switch (cmds[0]) {
 		case "addme":			
-			sendToIP(cmds[3], idPredecesseur+"-"+IPpredecesseur);
+			sendResponse(cmds[3], idPredecesseur+"-"+IPpredecesseur);
 
 			IPpredecesseur=cmds[3];
 			idPredecesseur = PeersUtility.safeParseInt(cmds[2]);
@@ -135,26 +135,46 @@ public class Peers_v2 {
 		case "getSucc":
 			int hashToGet = Integer.valueOf(cmds[2]);
 			if(idSuccesseur > hash && hashToGet < idSuccesseur)
-				sendToIP(cmds[3], idSuccesseur+"-"+IPsuccesseur);
+				sendResponse(cmds[3], idSuccesseur+"-"+IPsuccesseur);
 			else if(idSuccesseur < hash && (hashToGet > hash || (hashToGet > 0 && hashToGet < idSuccesseur)))
-				sendToIP(cmds[3], idSuccesseur+"-"+IPsuccesseur);
+				sendResponse(cmds[3], idSuccesseur+"-"+IPsuccesseur);
 			else if (idSuccesseur == hashToGet)
-				sendToIP(cmds[3], idSuccesseur+"-"+IPsuccesseur);
+				sendResponse(cmds[3], idSuccesseur+"-"+IPsuccesseur);
 			else if (idSuccesseur == hash)
-				sendToIP(cmds[3], hash+"-"+ip);
+				sendResponse(cmds[3], hash+"-"+ip);
 			else
 				passToSuccessor(message);
 			break;
 
 		case "transmit" :
-			//transmit:[hashTo]:[myHash]:[myIP]:[message]
-			sendToIP(cmds[3], "Whouhou");
+			int hashTo = PeersUtility.safeParseInt(cmds[1]);
+			if(hashTo != hash) {
+				if(idSuccesseur > hash && idSuccesseur > hashTo)
+					passToSuccessor(message);
+				else if (idSuccesseur < hash && !(hashTo > hash || hashTo > 0 && hashTo < idSuccesseur))
+					passToSuccessor(message);
+				else
+					sendResponse(cmds[3], "error : no hash corresponding");
+			} else 
+			{
+				System.out.println("You received a message from "+cmds[2]+" : ");
+				System.out.println("\t"+cmds[4]);
+				sendResponse(cmds[3], "Message well received");
+			}
 
 			break;
 
+		case "who" :
+			int hashfrom = Integer.valueOf(cmds[1]);
+			if(hashfrom != hash) 
+				passToSuccessor(message+" - "+hash);
+			else 
+				System.out.println("list of hashes  : "+cmds[2]);
+
+			break;
 
 		default:
-			//System.out.println(message);
+			System.err.println("Received message '"+message+"', cannot treat");
 			break;
 		}
 	}
@@ -182,7 +202,7 @@ public class Peers_v2 {
 		IPpredecesseur = result[1];
 
 		System.out.println("Updating Predecessor...");
-		sendToIP(IPpredecesseur, "newSucc:"+idSuccesseur+":"+hash+":"+ip, 2016);
+		sendToIP(IPpredecesseur, "newSucc:"+idSuccesseur+":"+hash+":"+ip);
 
 		return ret;
 	}
@@ -191,14 +211,14 @@ public class Peers_v2 {
 
 
 
-	private static void sendToIP(String IP, String message) {
+	private static void sendResponse(String IP, String message) {
 		PeersUtility.sendToIP(IP, message, 2017);
 	}
-	private static void sendToIP(String IP, String message, int port) {
-		PeersUtility.sendToIP(IP, message, port);
+	private static void sendToIP(String IP, String message) {
+		PeersUtility.sendToIP(IP, message, 2016);
 	}
 	private static void passToSuccessor(String message) {
-		PeersUtility.sendToIP(IPsuccesseur, message);
+		PeersUtility.sendToIP(IPsuccesseur, message, 2016);
 	}
 
 
@@ -247,21 +267,34 @@ public class Peers_v2 {
 
 	}
 
+
+
+
 	private static void scanCommandLine() {
-
-
 		try (Scanner scan = new Scanner(System.in)) {
 			while(true) {
-				
 				String mess = scan.nextLine();
-				if(mess.equals("info")) {
+				switch (mess) {
+				case "info":
 					System.out.println("IP Succ : " +IPsuccesseur);
 					System.out.println("Id Succ : " +idSuccesseur);
 					System.out.println("IP Pred : " +IPpredecesseur);
 					System.out.println("Id Pred : " +idPredecesseur);
+					break;
+
+				case "transmit" :
+					System.out.println("Hash to send to : ");
+					int hashTo = scan.nextInt();
+					System.out.println("What to send : ");
+					String send = scan.nextLine();
+					getResponse("transmit", hashTo, send);
+					break;
+				case "who" :
+					passToSuccessor("who:"+hash+":"+hash);
+					break;
+				default:
+					break;
 				}
-				int hashTo = scan.nextInt();
-				getResponse("transmit", hashTo, mess);
 
 
 			}
