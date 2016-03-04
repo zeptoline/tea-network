@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.Scanner;
 
 public class Peers_v2 {
-	private static final String IP_SERVEUR = "172.21.65.13";
+	private static final String IP_SERVEUR = "192.168.0.10";
 	private static final int SERVER_SIZE = 100;
 
 	private static int hash = -1;
@@ -23,8 +23,8 @@ public class Peers_v2 {
 	private static int idSuccesseur;
 	private static String IPpredecesseur = "";
 	private static int idPredecesseur;
-	
-	
+
+
 	private static ServerSocket ss = null;
 
 	private static String ip;
@@ -95,14 +95,14 @@ public class Peers_v2 {
 		catch ( IOException e ) {System.err.println("erreur I/O Welcome Server"); return;}
 
 
-		
+
 
 		try{
 			ss = new ServerSocket(2016);
 		}catch (IOException e) {System.err.println("erreur starting listening server"); return;}
-		
-		
-		
+
+
+
 		Thread te = new Thread(new Runnable() {
 			public void run() {
 				serverListener();
@@ -134,40 +134,9 @@ public class Peers_v2 {
 			break;
 
 			//transfert ::  transfert:[typeTransfert]:[hashTo]:[hashFrom]:[message]
-		case "transfert" :
-			System.out.println(message);
-			int hashTo = Integer.valueOf(cmds[2]);
-			if(hashTo != hash) {
-				if(idSuccesseur > hash) {
-					if(idSuccesseur > hashTo) {
-						passToSuccessor("transfert:ERRORsendTo:"+cmds[3]+":"+hash+":the peers "+cmds[2]+" was not found");
-					} else {
-						passToSuccessor(message);
-					}
-				} else {
-					if(hashTo > hash) {
-						passToSuccessor("transfert:ERRORsendTo:"+cmds[3]+":"+hash+":the peers "+cmds[2]+" was not found");
-					}else if (hashTo > 0 && hashTo < idSuccesseur) {
-						passToSuccessor("transfert:ERRORsendTo:"+cmds[3]+":"+hash+":the peers "+cmds[2]+" was not found");
-					} else {
-						passToSuccessor(message);
-					}
-				}
-			} else {
-				if(cmds[1].equals("sendTo")) 
-				{
-					System.out.println("Received message from "+cmds[3]+" : "+cmds[4]);
-					passToSuccessor("transfert:sendToWellReceived:"+cmds[3]+":"+hash);
-				} 
-				if(cmds[1].equals("sendToWellReceived")) 
-				{
-					System.out.println("The message to "+cmds[3]+" was well received.");
-				} 
-				if(cmds[1].equals("ERRORsendTo")) 
-				{
-					System.err.println(cmds[4]);
-				}
-			}
+		case "transmit" :
+			//transmit:[hashTo]:[myHash]:[myIP]:[message]
+			sendToIP(cmds[2], "Whouhou");
 
 			break;
 
@@ -231,12 +200,12 @@ public class Peers_v2 {
 		System.out.println("Trying to join the server");
 
 		IPsuccesseur = IPKnown;
-		
+
 		try 
 		(		Socket clientPresent = new Socket(IPKnown, 2016);
 				BufferedReader in = new BufferedReader(new InputStreamReader (clientPresent.getInputStream()));
 				PrintStream out = new PrintStream (clientPresent.getOutputStream(), true);)
-				{
+		{
 
 			out.println("init:addme_pls");
 			if(in.readLine().equals("K.")) {
@@ -249,7 +218,7 @@ public class Peers_v2 {
 				System.out.println("wut ?!");
 			}
 
-				} 	
+		} 	
 		catch(UnknownHostException e) {System.err.println("unknown host"); return;}
 		catch ( IOException e ) {System.err.println("I/O error joining known host"); return;}
 
@@ -258,7 +227,7 @@ public class Peers_v2 {
 		(		Socket pred = new Socket(IPpredecesseur, 2016);
 				BufferedReader in = new BufferedReader(new InputStreamReader (pred.getInputStream()));
 				PrintStream out = new PrintStream (pred.getOutputStream(), true);)
-				{
+		{
 
 			out.println("init:Hey Im new");
 			if(in.readLine().equals("hash pls?")) {
@@ -266,19 +235,30 @@ public class Peers_v2 {
 			} else{
 				System.out.println("wut ?!");
 			}
-				} 	
+		} 	
 		catch(UnknownHostException e) {System.err.println("unknown host"); return;}
 		catch ( IOException e ) {System.err.println("I/O error joining predecessor host"); return;}
 	}
-	
-	
-	
-	
-	
-	
+
+
+
+
+
+
 
 	private static void passToSuccessor(String message) {
 		try(Socket sc = new Socket(IPsuccesseur, 2016);
+				PrintStream os = new PrintStream (sc.getOutputStream(), true);) {
+			os.println(message);
+		}
+		catch (IOException e) {
+			System.err.println("Sending server IO Erreur");
+		}
+	}
+
+	private static void sendToIP(String IP, String message) {
+
+		try(Socket sc = new Socket(IP, 2016);
 				PrintStream os = new PrintStream (sc.getOutputStream(), true);) {
 			os.println(message);
 		}
@@ -291,28 +271,28 @@ public class Peers_v2 {
 	private static String sendMessage(String message) {
 		//message format :
 		//messageTo:[hashTo]:[myHash]:[myIP]:[message]
-		
+
 		try(Socket cl = ss.accept();) {
 			System.out.println("test");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		
-		
+
+
+
 		return "";
 	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+
+
+
+
+
+
+
+
+
+
 
 	protected static void serverListener() {
 		System.out.println("Start listening server");
@@ -343,13 +323,8 @@ public class Peers_v2 {
 				String mess = scan.nextLine();
 				switch (mess) {
 				default:
-					if(mess.matches("sendTo:(\\d)+:"+hash+":[^:]*"))
-						sendMessage("transfert:"+mess);
-					else {
-						System.out.println("usage :");
-						System.out.println("sendTo:[HashTo]:[YourHash]:[message]");
-						System.out.println("or just sendTo, and follow the instructions");
-					}
+					//transmit:[hashTo]:[myHash]:[myIP]:[message]
+					sendMessage("transmit:"+mess+":"+hash+":"+ip);
 					break;
 				}
 
