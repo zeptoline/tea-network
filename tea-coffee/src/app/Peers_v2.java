@@ -25,8 +25,6 @@ public class Peers_v2 {
 	private static int idPredecesseur;
 
 
-	private static ServerSocket ss = null;
-
 	private static String ip;
 
 	public static void main(String[] args) {
@@ -97,11 +95,6 @@ public class Peers_v2 {
 
 
 
-		try{
-			ss = new ServerSocket(2016);
-		}catch (IOException e) {System.err.println("erreur starting listening server"); return;}
-
-
 
 		Thread te = new Thread(new Runnable() {
 			public void run() {
@@ -140,14 +133,6 @@ public class Peers_v2 {
 
 			break;
 
-		case "who":
-			int hashfrom = Integer.valueOf(cmds[1]);
-			if(hashfrom != hash) {
-				passToSuccessor(message+hash+";");
-			} else {
-				System.out.println("list of hashes  :"+cmds[2]);
-			}
-			break;
 
 		case "newSuccessor":
 			idSuccesseur = Integer.valueOf(cmds[1]);
@@ -259,7 +244,7 @@ public class Peers_v2 {
 	private static void sendToIP(String IP, String message) {
 		System.out.println("Un message va partir vers "+IP);
 
-		try(Socket sc = new Socket(IP, 2016);
+		try(Socket sc = new Socket(IP, 2017);
 				PrintStream os = new PrintStream (sc.getOutputStream(), true);) {
 			os.println(message);
 		}
@@ -270,11 +255,16 @@ public class Peers_v2 {
 
 
 	private static String sendMessage(String message) {
+		passToSuccessor(message);
 		//message format :
 		//messageTo:[hashTo]:[myHash]:[myIP]:[message]
 
-		try(Socket cl = ss.accept();) {
-			System.out.println("test");
+		try(ServerSocket responseGetter = new ServerSocket(2017); 
+				Socket cl = responseGetter.accept();
+				BufferedReader d = new BufferedReader(new InputStreamReader(cl.getInputStream()));
+				) 
+		{
+			System.out.println(d.readLine());
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -296,39 +286,41 @@ public class Peers_v2 {
 
 
 	protected static void serverListener() {
-		System.out.println("Start listening server");
-		while(true) {
-			try(Socket cs = ss.accept();
-					BufferedReader d = new BufferedReader(new InputStreamReader(cs.getInputStream()));
-					PrintStream os = new PrintStream (cs.getOutputStream(), true);
-					) 
-			{
-				String message = "";
-				while((message = d.readLine())!= null) 
+		try(ServerSocket ss = new ServerSocket(2016);){
+			
+			System.out.println("Start listening server");
+			while(true) {
+				try(Socket cs = ss.accept();
+						BufferedReader d = new BufferedReader(new InputStreamReader(cs.getInputStream()));
+						PrintStream os = new PrintStream (cs.getOutputStream(), true);
+						) 
 				{
-					System.out.println("un message est arrivé sur le serveur d'écoute");
-					TreatMessage(message, os, d, cs);
+					String message = "";
+					while((message = d.readLine())!= null) 
+					{
+						System.out.println("un message est arrivé sur le serveur d'écoute");
+						TreatMessage(message, os, d, cs);
 
+					}
+				}
+				catch (IOException e) {
+					System.err.println("Listening server IO Erreur");
 				}
 			}
-			catch (IOException e) {
-				System.err.println("Listening server IO Erreur");
-			}
-		}
-
+		}catch (IOException e) {System.err.println("erreur starting listening server"); return;}
 
 	}
 
 	private static void scanCommandLine() {
+
+
 		try (Scanner scan = new Scanner(System.in)) {
 			while(true) {
+
 				String mess = scan.nextLine();
-				switch (mess) {
-				default:
-					//transmit:[hashTo]:[myHash]:[myIP]:[message]
-					sendMessage("transmit:"+mess+":"+hash+":"+ip);
-					break;
-				}
+				//transmit:[hashTo]:[myHash]:[myIP]:[message]
+				sendMessage("transmit:"+mess+":"+hash+":"+ip);
+
 
 			}
 		}
