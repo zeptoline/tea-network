@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.Scanner;
 
 public class Peers {
-	private static final String IP_SERVEUR = "192.168.0.10";
+	private static final String IP_SERVEUR = "172.21.65.31";
 	private static final int SERVER_SIZE = 100;
 
 	private static int hash = -1;
@@ -234,7 +234,7 @@ public class Peers {
 		System.out.println("Getting Predecessor...");
 		result = null;
 
-		//idSuccesseur ne sert à rien dans cette envois, mais c'est par soucis de respecter le format des messages
+		//idSuccesseur ne sert ï¿½ rien dans cette envois, mais c'est par soucis de respecter le format des messages
 		result = (getResponseIP(IPsuccesseur, "addme:"+idSuccesseur+":"+hash+":"+ip)).split("-");
 		idPredecesseur = PeersUtility.safeParseInt(result[0]);
 		IPpredecesseur = result[1];
