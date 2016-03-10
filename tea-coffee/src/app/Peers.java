@@ -143,6 +143,7 @@ public class Peers {
 	//[command]:[hashTo]:[hashFrom]:[IPFrom]:[message]
 	private static void TreatMessage(String message, PrintStream os, BufferedReader d, Socket cs) {
 		String[] cmds = message.split(":");
+		System.out.println(message);
 		switch (cmds[0]) {
 		/*
 		 * Init messages
@@ -224,7 +225,7 @@ public class Peers {
 			if(Integer.valueOf(cmds[2]) != hash)
 				passToSuccessor(message);
 			System.out.println(cmds[1] + " has left");
-			
+			break;
 			
 		default:
 			System.err.println("Received message '"+message+"', cannot treat");
@@ -408,11 +409,33 @@ public class Peers {
 		}catch (IOException e) {System.err.println("erreur starting monitor server"); return;}
 	}
 
+	
+	
+	protected static void leaveWelcomeServer(int hashToLeave) {
+		try (Socket WSsock = new Socket (IP_SERVEUR, 8000);
+				PrintStream sortie = new PrintStream (WSsock.getOutputStream(), true);
+				)
+		{
+			String connec = "a+:"+hashToLeave;
+			sortie.println(connec);			
+		} 	
+		catch(UnknownHostException e) {System.err.println("unknown host"); return;}
+		catch ( IOException e ) {System.err.println("erreur I/O Welcome Server"); return;}
+	}
+	
+	
+	
+	
+	
+	
+	
+	
 	//message format :
 	//[command]:[hashTo]:[hashHrom]:[IPFrom]:[message]
 	private static void scanCommandLine() {
 		try (Scanner scan = new Scanner(System.in)) {
-			while(true) {
+			boolean terminate = false;
+			while(!terminate) {
 				String mess = scan.nextLine();
 				switch (mess) {
 				case "info":
@@ -441,17 +464,21 @@ public class Peers {
 					sendToIP(IPpredecesseur, "newSucc:"+idPredecesseur+":"+idSuccesseur+":"+IPsuccesseur);
 					//newPred:[hash]:[newIDpred]:[newIPpred]
 					passToSuccessor("newPred:"+idSuccesseur+":"+idPredecesseur+":"+IPpredecesseur);
-					/*
-					 * TODO Faire l'envoi au serveur "a+"
-					 */
+					
+					leaveWelcomeServer(hash);
+					
 					//Pour retirer de la table
 					passToSuccessor("exit:"+hash+":"+idPredecesseur);
+					terminate = true;
+					break;
 				default:
 					break;
 				}
 
 
 			}
+			
+			System.exit(0);
 		}
 	}
 
