@@ -140,14 +140,14 @@ public class Peers {
 
 
 	//message format :
-	//[command]:[hashTo]:[hashHrom]:[IPFrom]:[message]
+	//[command]:[hashTo]:[hashFrom]:[IPFrom]:[message]
 	private static void TreatMessage(String message, PrintStream os, BufferedReader d, Socket cs) {
 		String[] cmds = message.split(":");
-		System.out.println(message);
 		switch (cmds[0]) {
 		/*
 		 * Init messages
 		 */
+		//addme:[hash]:[new idPred]:[new IPpred]
 		case "addme":			
 			sendResponse(cmds[3], idPredecesseur+"-"+IPpredecesseur);
 
@@ -156,7 +156,14 @@ public class Peers {
 
 			System.out.println("New Peer added to the network");
 			break;
+		//newPred:[hash]:[newIDpred]:[newIPpred]
+		case "newPred" :
+			IPpredecesseur = cmds[3];
+			idPredecesseur = PeersUtility.safeParseInt(cmds[2]);
+			System.out.println("Predecessor has been updated - new Predecessor : "+idPredecesseur);
+			break;
 
+		//newSucc:[hash]:[newIDsucc]:[newIPsucc]
 		case "newSucc" :
 			IPsuccesseur = cmds[3];
 			idSuccesseur = PeersUtility.safeParseInt(cmds[2]);
@@ -210,8 +217,15 @@ public class Peers {
 			else 
 				System.out.println("list of hashes  : "+cmds[2]);
 
-			break;
-
+			break;			
+		//exit:hash
+		case "exit" :
+			finger.remove(Integer.valueOf(cmds[1]));
+			if(Integer.valueOf(cmds[2]) != hash)
+				passToSuccessor(message);
+			System.out.println(cmds[1] + " has left");
+			
+			
 		default:
 			System.err.println("Received message '"+message+"', cannot treat");
 			break;
@@ -394,6 +408,8 @@ public class Peers {
 		}catch (IOException e) {System.err.println("erreur starting monitor server"); return;}
 	}
 
+	//message format :
+	//[command]:[hashTo]:[hashHrom]:[IPFrom]:[message]
 	private static void scanCommandLine() {
 		try (Scanner scan = new Scanner(System.in)) {
 			while(true) {
@@ -420,6 +436,16 @@ public class Peers {
 				case "refresh" :
 					refreshFinger();
 					break;
+				case "exit" :
+					//newSucc:[hash]:[newIDsucc]:[newIPsucc]
+					sendToIP(IPpredecesseur, "newSucc:"+idPredecesseur+":"+idSuccesseur+":"+IPsuccesseur);
+					//newPred:[hash]:[newIDpred]:[newIPpred]
+					passToSuccessor("newPred:"+idSuccesseur+":"+idPredecesseur+":"+IPpredecesseur);
+					/*
+					 * TODO Faire l'envoi au serveur "a+"
+					 */
+					//Pour retirer de la table
+					passToSuccessor("exit:"+hash+":"+idPredecesseur);
 				default:
 					break;
 				}
