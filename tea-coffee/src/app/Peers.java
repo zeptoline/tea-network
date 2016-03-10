@@ -263,9 +263,12 @@ public class Peers {
 		 * Regarder la finger table
 		 * 
 		 */	
+		int lastHash;
+		boolean trouver = false;
+		
 		//Si c'est dans ta finger, envoyé direct
 		if(finger.containsKey(hashTo)) {
-			PeersUtility.sendToIP(finger.get(hashTo), message, 2016);
+			lastHash = hashTo;
 		} else {
 			
 			int hashTest1 = -1, hashTest2 = -1;
@@ -280,22 +283,23 @@ public class Peers {
 				if(hashTest2 < hashTest1) {
 					//passage au 0
 					if( hashTo > hashTest1 || hashTo < hashTest2) {
+						trouver = true;
 						break;
 					}
 				} else {
 					if(hashTo < hashTest2 && hashTo > hashTest1) {
+						trouver = true;
 						break;
 					}
 				}
 			}
-
-			PeersUtility.sendToIP(finger.get(hashTest1), message, 2016);
-			
-			
+			if(trouver){
+				lastHash = hashTest1;
+			} else {
+				lastHash = hashTest2;
+			}
 		}
-		
-		
-		
+		PeersUtility.sendToIP(finger.get(lastHash), message, 2016);
 	}
 
 
