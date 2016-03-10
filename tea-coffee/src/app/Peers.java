@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.Scanner;
 
 public class Peers {
-	private static final String IP_SERVEUR = "192.168.0.10";
+	private static final String IP_SERVEUR = "172.21.65.31";
 	private static final int SERVER_SIZE = 100;
 
 	private static int hash = -1;
@@ -186,9 +186,9 @@ public class Peers {
 			int hashTo = PeersUtility.safeParseInt(cmds[1]);
 			if(hashTo != hash) {
 				if(idSuccesseur > hash && idSuccesseur > hashTo)
-					passToSuccessor(message);
+					passToNearest(message, hashTo);
 				else if (idSuccesseur < hash && !(hashTo > hash || hashTo > 0 && hashTo < idSuccesseur))
-					passToSuccessor(message);
+					passToNearest(message, hashTo);
 				else
 					sendResponse(cmds[3], "error : no hash corresponding");
 			} else 
@@ -234,7 +234,7 @@ public class Peers {
 		System.out.println("Getting Predecessor...");
 		result = null;
 
-		//idSuccesseur ne sert à rien dans cette envois, mais c'est par soucis de respecter le format des messages
+		//idSuccesseur ne sert ï¿½ rien dans cette envois, mais c'est par soucis de respecter le format des messages
 		result = (getResponseIP(IPsuccesseur, "addme:"+idSuccesseur+":"+hash+":"+ip)).split("-");
 		idPredecesseur = PeersUtility.safeParseInt(result[0]);
 		IPpredecesseur = result[1];
@@ -258,7 +258,45 @@ public class Peers {
 	private static void passToSuccessor(String message) {
 		PeersUtility.sendToIP(IPsuccesseur, message, 2016);
 	}
+	private static void passToNearest(String message, int hashTo) {
+		/*
+		 * Regarder la finger table
+		 * 
+		 */	
+		//Si c'est dans ta finger, envoyÃ© direct
+		if(finger.containsKey(hashTo)) {
+			PeersUtility.sendToIP(finger.get(hashTo), message, 2016);
+		} else {
+			
+			int hashTest1 = -1, hashTest2 = -1;
+			for (int hashTest : finger.keySet()) {
+				if(hashTest1 == -1){
+					hashTest1 = hash;
+				} else {
+					hashTest1 = hashTest2;
+				}
+				hashTest2 = hashTest;
+				
+				if(hashTest2 < hashTest1) {
+					//passage au 0
+					if( hashTo > hashTest1 || hashTo < hashTest2) {
+						break;
+					}
+				} else {
+					if(hashTo < hashTest2 && hashTo > hashTest1) {
+						break;
+					}
+				}
+			}
 
+			PeersUtility.sendToIP(finger.get(hashTest1), message, 2016);
+			
+			
+		}
+		
+		
+		
+	}
 
 
 
