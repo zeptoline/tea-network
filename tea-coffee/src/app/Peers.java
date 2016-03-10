@@ -143,6 +143,7 @@ public class Peers {
 	//[command]:[hashTo]:[hashHrom]:[IPFrom]:[message]
 	private static void TreatMessage(String message, PrintStream os, BufferedReader d, Socket cs) {
 		String[] cmds = message.split(":");
+		System.out.println(message);
 		switch (cmds[0]) {
 		/*
 		 * Init messages
