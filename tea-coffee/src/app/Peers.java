@@ -155,6 +155,11 @@ public class Peers {
 			IPpredecesseur=cmds[3];
 			idPredecesseur = PeersUtility.safeParseInt(cmds[2]);
 
+
+			try {
+				Thread.sleep(3000);
+			} catch (InterruptedException e) {e.printStackTrace();}
+			
 			System.out.println("New Peer added to the network");
 			break;
 		//newPred:[hash]:[newIDpred]:[newIPpred]
@@ -375,12 +380,6 @@ public class Peers {
 					String message = "";
 					while((message = d.readLine())!= null) 
 					{
-						try {
-							Thread.sleep(5000);
-						} catch (InterruptedException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
 						TreatMessage(message, os, d, cs);
 
 					}
