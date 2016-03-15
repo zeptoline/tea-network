@@ -9,7 +9,7 @@ public class launchServers {
 
 			@Override
 			public void run() {
-				String[] args = {"8000", "100"};
+				String[] args = {"8000", "20"};
 				WelcomeServer.main(args);
 			}
 		}).start();
@@ -18,7 +18,7 @@ public class launchServers {
 
 			@Override
 			public void run() {
-				String[] args2 = {"8001", "100"};
+				String[] args2 = {"8001", "20"};
 				try {
 					HashServer.main(args2);
 				} catch (IOException e) {

@@ -12,9 +12,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
 
+
 public class Peers {
-	private static final String IP_SERVEUR = "172.21.65.139";
-	private static final int SERVER_SIZE = 100;
+	private static final String IP_SERVEUR = "172.21.65.137";
+	private static final int SERVER_SIZE = 20;
 
 	private static int hash = -1;
 
@@ -130,6 +131,76 @@ public class Peers {
 		});
 		refresher.start();
 
+		Thread expiredTest = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				while(true) {
+					try {
+						Thread.sleep(30000);
+
+						try (Socket sc = new Socket (IPsuccesseur, 2016);
+								BufferedReader entree = new BufferedReader(new InputStreamReader (sc.getInputStream()));
+								PrintStream sortie = new PrintStream (sc.getOutputStream(), true);
+							){
+							sortie.println("ruhere");							
+							if(!entree.readLine().equals("yes")) {
+								System.err.println("dafuck");
+							}
+							
+						}
+						catch (IOException e) {
+							System.out.println("The successor is not joignable");
+							
+							
+							/*
+							 * 
+							 * TODO Refaire les conditions
+							 * 
+							 */
+							if(finger.containsKey(hash)) {
+								leaveWelcomeServer(idSuccesseur);
+								
+								
+								idSuccesseur = hash;
+								idPredecesseur = hash;
+								IPpredecesseur = ip;
+								IPsuccesseur = ip;
+							} else{
+								boolean getThisOne = false;
+								int result = -1;
+								for (int key : finger.keySet()) {
+									if(getThisOne) {
+										result = key;
+										break;
+									}
+									if(key == idSuccesseur) {
+										getThisOne = true;
+									}	
+								}
+								passToSuccessor("exit:"+idSuccesseur+":"+hash);
+								
+								leaveWelcomeServer(idSuccesseur);
+								
+								
+								idSuccesseur = result;
+								IPsuccesseur = finger.get(result);
+								
+							}
+							
+						}
+						
+						
+						
+						
+					} catch (InterruptedException e) {
+						System.err.println("error time refresh thread");
+					}
+				}
+
+			}
+		});
+		expiredTest.start();
+		
 		scanCommandLine();
 
 	}
@@ -143,7 +214,6 @@ public class Peers {
 	//[command]:[hashTo]:[hashFrom]:[IPFrom]:[message]
 	private static void TreatMessage(String message, PrintStream os, BufferedReader d, Socket cs) {
 		String[] cmds = message.split(":");
-		System.out.println(message);
 		switch (cmds[0]) {
 		/*
 		 * Init messages
@@ -175,13 +245,13 @@ public class Peers {
 
 		case "getSucc":
 			int hashToGet = Integer.valueOf(cmds[1]);
-			if(idSuccesseur > hash && hashToGet < idSuccesseur)
+			if(idSuccesseur > hash && hashToGet < idSuccesseur && hashToGet > hash)
 				sendResponse(cmds[3], idSuccesseur+"-"+IPsuccesseur);
-			else if(idSuccesseur < hash && (hashToGet > hash || (hashToGet > 0 && hashToGet < idSuccesseur)))
-				sendResponse(cmds[3], idSuccesseur+"-"+IPsuccesseur);
-			else if (idSuccesseur == hashToGet)
+			else if(idSuccesseur < hash && (hashToGet > hash || (hashToGet <= idSuccesseur)))
 				sendResponse(cmds[3], idSuccesseur+"-"+IPsuccesseur);
 			else if (idSuccesseur == hash)
+				sendResponse(cmds[3], hash+"-"+ip);
+			else if (hashToGet == hash)
 				sendResponse(cmds[3], hash+"-"+ip);
 			else
 				passToSuccessor(message);
@@ -194,14 +264,14 @@ public class Peers {
 		case "transmit" :
 			int hashTo = PeersUtility.safeParseInt(cmds[1]);
 			if(hashTo != hash) {
-				if(idSuccesseur > hash && idSuccesseur > hashTo)
+				if(idSuccesseur > hash && idSuccesseur < hashTo)
 					passToNearest(message, hashTo);
 				else if (idSuccesseur < hash && !(hashTo > hash || hashTo > 0 && hashTo < idSuccesseur))
-					passToNearest(message, hashTo);
+					sendResponse(cmds[3], "error : no hash corresponding");
 				else if (idSuccesseur == hashTo)
 					passToSuccessor(message);
 				else
-					sendResponse(cmds[3], "error : no hash corresponding");
+					passToNearest(message, hashTo);
 			} else 
 			{
 				System.out.println("You received a message from "+cmds[2]+" : ");
@@ -225,6 +295,10 @@ public class Peers {
 			if(Integer.valueOf(cmds[2]) != hash)
 				passToSuccessor(message);
 			System.out.println(cmds[1] + " has left");
+			break;
+			
+		case "ruhere":
+			os.println("yes");
 			break;
 			
 		default:
@@ -339,8 +413,10 @@ public class Peers {
 	public static void refreshFinger() {
 		System.out.println("Refreshing Routing Table");
 		finger.clear();
+		System.out.println("test1");
 		finger_moniteur.clear();
-
+		System.out.println("test2");
+		
 		int max = (int) (Math.log(SERVER_SIZE) / Math.log(2));
 		int puissance = 0;
 		for (int i = 0; i <= max; i++) {
@@ -350,11 +426,14 @@ public class Peers {
 
 			finger.put(hp, result[1]);
 			finger_moniteur.add(puissance+":"+hp+":"+result[1]);
+			System.out.println(puissance+" : "+result[1]);
 
 		}
+		System.out.println("Refreshing routing table done");
+		/*
 		for (String key : finger_moniteur) {
 			System.out.println(key);
-		}
+		}*/
 	}
 
 
