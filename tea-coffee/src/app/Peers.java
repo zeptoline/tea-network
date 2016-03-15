@@ -190,6 +190,7 @@ public class Peers {
 							
 							finger.remove(idSuccesseur);
 							finger.remove(hash);
+							System.out.println("removed successor from routing table");
 							int next = -1;
 							for (int key : finger.keySet()) {
 								next = key;
@@ -201,6 +202,11 @@ public class Peers {
 								IPsuccesseur = finger.get(next);
 
 								passToSuccessor("exit:"+idSuccesseur+":"+hash);
+							} else {
+								idSuccesseur = hash;
+								idPredecesseur = hash;
+								IPpredecesseur = ip;
+								IPsuccesseur = ip;
 							}
 							
 							
