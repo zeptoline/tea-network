@@ -375,6 +375,12 @@ public class Peers {
 					String message = "";
 					while((message = d.readLine())!= null) 
 					{
+						try {
+							Thread.sleep(5000);
+						} catch (InterruptedException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
 						TreatMessage(message, os, d, cs);
 
 					}
