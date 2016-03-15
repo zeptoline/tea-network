@@ -8,7 +8,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 public class PeersUtility {
-	public static void sendToIP(String IP, String message) {
+	public static void sendToIP(String IP, String message) throws IOException{
 
 
 		try(Socket sc = new Socket(IP, 2017);
@@ -16,12 +16,12 @@ public class PeersUtility {
 			os.println(message);
 		}
 		catch (IOException e) {
-			System.err.println("Sending server IO Erreur");
+			throw e;
 		}
 	}
 	
 	
-	public static void sendToIP(String IP, String message, int port) {
+	public static void sendToIP(String IP, String message, int port) throws IOException{
 
 
 		try(Socket sc = new Socket(IP, port);
@@ -29,12 +29,12 @@ public class PeersUtility {
 			os.println(message);
 		}
 		catch (IOException e) {
-			System.err.println("Sending server IO Erreur");
+			throw e;
 		}
 	}
 
 
-	public static String getResponseIP(String IP, String message) {
+	public static String getResponseIP(String IP, String message) throws IOException{
 		sendToIP(IP, message, 2016);
 		String response = "";
 
@@ -44,7 +44,7 @@ public class PeersUtility {
 				) 
 		{
 			response = d.readLine();
-		} catch (IOException e) {System.err.println("response Getter failed");}
+		} catch (IOException e) {throw e;}
 		return response;
 	}
 	

@@ -144,84 +144,15 @@ public class Peers {
 							){
 							sortie.println("ruhere");							
 							if(!entree.readLine().equals("yes")) {
-								System.err.println("dafuck");
+								System.err.println("howdidIgotHere");
 							}
-							
 						}
 						catch (IOException e) {
-							System.out.println("The successor is not joignable");
-
-							leaveWelcomeServer(idSuccesseur);
-							
-							/*
-							 * 
-							 * TODO Refaire les conditions
-							 * 
-							 */
-//							if(finger.containsKey(hash)) {
-//								leaveWelcomeServer(idSuccesseur);
-//								
-//								
-//								idSuccesseur = hash;
-//								idPredecesseur = hash;
-//								IPpredecesseur = ip;
-//								IPsuccesseur = ip;
-//							} else{
-//								boolean getThisOne = false;
-//								int result = -1;
-//								for (int key : finger.keySet()) {
-//									if(getThisOne) {
-//										result = key;
-//										break;
-//									}
-//									if(key == idSuccesseur) {
-//										getThisOne = true;
-//									}	
-//								}
-//								passToSuccessor("exit:"+idSuccesseur+":"+hash);
-//								
-//								leaveWelcomeServer(idSuccesseur);
-//								
-//								
-//								idSuccesseur = result;
-//								IPsuccesseur = finger.get(result);
-//								
-//							}
-							
-							finger.remove(idSuccesseur);
-							finger.remove(hash);
-							System.out.println("removed successor from routing table");
-							int next = -1;
-							for (int key : finger.keySet()) {
-								next = key;
-								break;
-							}
-							if (next != -1) {
-								
-								idSuccesseur = next;
-								IPsuccesseur = finger.get(next);
-
-								passToSuccessor("exit:"+idSuccesseur+":"+hash);
-							} else {
-								idSuccesseur = hash;
-								idPredecesseur = hash;
-								IPpredecesseur = ip;
-								IPsuccesseur = ip;
-							}
-							
-							
-							
-							
+							catchSuccessorFail();
 						}
-						
-						
-						
-						
-					} catch (InterruptedException e) {
-						System.err.println("error time refresh thread");
-					}
+					} 
+					catch (InterruptedException e) {System.err.println("error time refresh thread");}
 				}
-
 			}
 		});
 		expiredTest.start();
@@ -232,7 +163,33 @@ public class Peers {
 
 
 
+	private static void catchSuccessorFail() {
+		System.out.println("The successor is not joignable");
 
+		leaveWelcomeServer(idSuccesseur);
+		
+		finger.remove(idSuccesseur);
+		finger.remove(hash);
+		System.out.println("removed successor from routing table");
+		int next = -1;
+		for (int key : finger.keySet()) {
+			next = key;
+			break;
+		}
+		if (next != -1) {
+			int old = idSuccesseur;
+			idSuccesseur = next;
+			IPsuccesseur = finger.get(next);
+
+			passToSuccessor("exit:"+old+":"+hash);
+		} else {
+			idSuccesseur = hash;
+			idPredecesseur = hash;
+			IPpredecesseur = ip;
+			IPsuccesseur = ip;
+		}
+		
+	}
 
 
 	//message format :
@@ -367,13 +324,19 @@ public class Peers {
 
 
 	private static void sendResponse(String IP, String message) {
-		PeersUtility.sendToIP(IP, message, 2017);
+		try {
+			PeersUtility.sendToIP(IP, message, 2017);
+		} catch (IOException e) {e.printStackTrace();}
 	}
 	private static void sendToIP(String IP, String message) {
-		PeersUtility.sendToIP(IP, message, 2016);
+		try {
+			PeersUtility.sendToIP(IP, message, 2016);
+		} catch (IOException e) {e.printStackTrace();}
 	}
 	private static void passToSuccessor(String message) {
-		PeersUtility.sendToIP(IPsuccesseur, message, 2016);
+		try {
+			PeersUtility.sendToIP(IPsuccesseur, message, 2016);
+		} catch (IOException e) {catchSuccessorFail();}
 	}
 	private static void passToNearest(String message, int hashTo) {
 		/*
@@ -416,18 +379,26 @@ public class Peers {
 				lastHash = hashTest2;
 			}
 		}
-		PeersUtility.sendToIP(finger.get(lastHash), message, 2016);
+		try {
+			PeersUtility.sendToIP(finger.get(lastHash), message, 2016);
+		} catch (IOException e) {e.printStackTrace();}
 	}
 
 
 
 	private static String getResponse(String command, int hashTo, String message) {
 		String send = command+":"+hashTo+":"+hash+":"+ip+":"+message;
-		return PeersUtility.getResponseIP(IPsuccesseur, send);
+		try {
+			return PeersUtility.getResponseIP(IPsuccesseur, send);
+		} catch (IOException e) {e.printStackTrace();}
+		return null;
 	}
 
 	private static String getResponseIP(String IP, String message) {
-		return PeersUtility.getResponseIP(IP, message);
+		try {
+			return PeersUtility.getResponseIP(IP, message);
+		} catch (IOException e) {e.printStackTrace();}
+		return null;
 	}
 
 
