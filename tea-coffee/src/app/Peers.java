@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.Scanner;
 
 public class Peers {
-	private static final String IP_SERVEUR = "172.21.65.31";
+	private static final String IP_SERVEUR = "172.21.65.139";
 	private static final int SERVER_SIZE = 100;
 
 	private static int hash = -1;
