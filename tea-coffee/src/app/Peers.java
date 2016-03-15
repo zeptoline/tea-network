@@ -14,7 +14,7 @@ import java.util.Scanner;
 
 
 public class Peers {
-	private static final String IP_SERVEUR = "172.21.65.137";
+	private static final String IP_SERVEUR = "192.168.0.10";
 	private static final int SERVER_SIZE = 20;
 
 	private static int hash = -1;
@@ -150,42 +150,61 @@ public class Peers {
 						}
 						catch (IOException e) {
 							System.out.println("The successor is not joignable");
-							
+
+							leaveWelcomeServer(idSuccesseur);
 							
 							/*
 							 * 
 							 * TODO Refaire les conditions
 							 * 
 							 */
-							if(finger.containsKey(hash)) {
-								leaveWelcomeServer(idSuccesseur);
-								
-								
-								idSuccesseur = hash;
-								idPredecesseur = hash;
-								IPpredecesseur = ip;
-								IPsuccesseur = ip;
-							} else{
-								boolean getThisOne = false;
-								int result = -1;
-								for (int key : finger.keySet()) {
-									if(getThisOne) {
-										result = key;
-										break;
-									}
-									if(key == idSuccesseur) {
-										getThisOne = true;
-									}	
-								}
-								passToSuccessor("exit:"+idSuccesseur+":"+hash);
-								
-								leaveWelcomeServer(idSuccesseur);
-								
-								
-								idSuccesseur = result;
-								IPsuccesseur = finger.get(result);
-								
+//							if(finger.containsKey(hash)) {
+//								leaveWelcomeServer(idSuccesseur);
+//								
+//								
+//								idSuccesseur = hash;
+//								idPredecesseur = hash;
+//								IPpredecesseur = ip;
+//								IPsuccesseur = ip;
+//							} else{
+//								boolean getThisOne = false;
+//								int result = -1;
+//								for (int key : finger.keySet()) {
+//									if(getThisOne) {
+//										result = key;
+//										break;
+//									}
+//									if(key == idSuccesseur) {
+//										getThisOne = true;
+//									}	
+//								}
+//								passToSuccessor("exit:"+idSuccesseur+":"+hash);
+//								
+//								leaveWelcomeServer(idSuccesseur);
+//								
+//								
+//								idSuccesseur = result;
+//								IPsuccesseur = finger.get(result);
+//								
+//							}
+							
+							finger.remove(idSuccesseur);
+							finger.remove(hash);
+							int next = -1;
+							for (int key : finger.keySet()) {
+								next = key;
+								break;
 							}
+							if (next != -1) {
+								
+								idSuccesseur = next;
+								IPsuccesseur = finger.get(next);
+
+								passToSuccessor("exit:"+idSuccesseur+":"+hash);
+							}
+							
+							
+							
 							
 						}
 						
@@ -413,9 +432,7 @@ public class Peers {
 	public static void refreshFinger() {
 		System.out.println("Refreshing Routing Table");
 		finger.clear();
-		System.out.println("test1");
 		finger_moniteur.clear();
-		System.out.println("test2");
 		
 		int max = (int) (Math.log(SERVER_SIZE) / Math.log(2));
 		int puissance = 0;
@@ -426,14 +443,11 @@ public class Peers {
 
 			finger.put(hp, result[1]);
 			finger_moniteur.add(puissance+":"+hp+":"+result[1]);
-			System.out.println(puissance+" : "+result[1]);
+			//System.out.println(puissance+" : "+result[1]);
 
 		}
-		System.out.println("Refreshing routing table done");
-		/*
-		for (String key : finger_moniteur) {
-			System.out.println(key);
-		}*/
+		System.out.println("Finished refreshing routing table");
+		
 	}
 
 
@@ -518,10 +532,13 @@ public class Peers {
 				String mess = scan.nextLine();
 				switch (mess) {
 				case "info":
-					System.out.println("IP Succ : " +IPsuccesseur);
-					System.out.println("Id Succ : " +idSuccesseur);
-					System.out.println("IP Pred : " +IPpredecesseur);
-					System.out.println("Id Pred : " +idPredecesseur);
+					System.out.println("IP Successeur : " +IPsuccesseur);
+					System.out.println("Id Successeur : " +idSuccesseur);
+					System.out.println("IP Predecesseur : " +IPpredecesseur);
+					System.out.println("Id Predecesseur : " +idPredecesseur);
+					for (String key : finger_moniteur) {
+						System.out.println(key);
+					}
 					break;
 
 				case "transmit" :
@@ -551,6 +568,13 @@ public class Peers {
 					terminate = true;
 					break;
 				default:
+					System.out.println("Utilisation :");
+					System.out.println("\tinfo : donne le successeurs et le prédécésseur, avec la table de routage");
+					System.out.println("\ttransmit : Envois un message à un autre membre du network (le hash doit exister)");
+					System.out.println("\twho : Liste tous les hashes du network");
+					System.out.println("\trefresh : rafraichis la table de routage manuellement");
+					System.out.println("\texit : quites le network");
+					
 					break;
 				}
 
