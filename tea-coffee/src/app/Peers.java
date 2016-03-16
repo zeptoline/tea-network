@@ -14,7 +14,7 @@ import java.util.Scanner;
 
 
 public class Peers {
-	private static final String IP_SERVEUR = "192.168.0.10";
+	private static final String IP_SERVEUR = "172.21.65.17";
 	private static final int SERVER_SIZE = 20;
 
 	private static int hash = -1;
@@ -336,7 +336,10 @@ public class Peers {
 	private static void passToSuccessor(String message) {
 		try {
 			PeersUtility.sendToIP(IPsuccesseur, message, 2016);
-		} catch (IOException e) {catchSuccessorFail();}
+		} catch (IOException e) {
+			catchSuccessorFail();
+			passToSuccessor(message);
+			}
 	}
 	private static void passToNearest(String message, int hashTo) {
 		/*
@@ -546,8 +549,8 @@ public class Peers {
 					break;
 				default:
 					System.out.println("Utilisation :");
-					System.out.println("\tinfo : donne le successeurs et le prédécésseur, avec la table de routage");
-					System.out.println("\ttransmit : Envois un message à un autre membre du network (le hash doit exister)");
+					System.out.println("\tinfo : donne le successeurs et le prï¿½dï¿½cï¿½sseur, avec la table de routage");
+					System.out.println("\ttransmit : Envois un message ï¿½ un autre membre du network (le hash doit exister)");
 					System.out.println("\twho : Liste tous les hashes du network");
 					System.out.println("\trefresh : rafraichis la table de routage manuellement");
 					System.out.println("\texit : quites le network");
