@@ -30,13 +30,14 @@ public class Peers {
 	private static String ip;
 
 	public static void main(String[] args) {
+	
 		if(args.length >= 1) {
-			if (args[2].matches("\\d+.\\d+.\\d+.\\d+")) {
-				IP_SERVEUR = args[1];
+			if (args[0].matches("\\d+.\\d+.\\d+.\\d+")) {
+				IP_SERVEUR = args[0];
 			}
 		}
 		if(args.length >= 2) {
-			SERVER_SIZE = PeersUtility.safeParseInt(args[2]);
+			SERVER_SIZE = PeersUtility.safeParseInt(args[1]);
 		}
 		
 		
