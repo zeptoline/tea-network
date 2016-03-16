@@ -287,7 +287,7 @@ public class Peers {
 					sendResponse(cmds[3], "error, no hash corresponding");
 				else if (idSuccesseur == hash && hashTo != hash)
 					sendResponse(cmds[3], "error, no hash corresponding");
-				else if (idSuccesseur < hash && !(hashTo > hash || hashTo > 0 && hashTo < idSuccesseur))
+				else if (idSuccesseur < hash && !(hashTo > hash || hashTo < idSuccesseur))
 					sendResponse(cmds[3], "error : no hash corresponding");
 				else if (idSuccesseur == hashTo)
 					passToSuccessor(message);
