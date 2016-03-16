@@ -14,8 +14,8 @@ import java.util.Scanner;
 
 
 public class Peers {
-	private static final String IP_SERVEUR = "172.21.65.17";
-	private static final int SERVER_SIZE = 20;
+	private static String IP_SERVEUR = "localhost";
+	private static int SERVER_SIZE = 50;
 
 	private static int hash = -1;
 
@@ -30,7 +30,18 @@ public class Peers {
 	private static String ip;
 
 	public static void main(String[] args) {
-
+		if(args.length > 2) {
+			if (args[2].matches("\\d+.\\d+.\\d+.\\d+")) {
+				IP_SERVEUR = args[2];
+			}
+		}
+		if(args.length > 3) {
+			SERVER_SIZE = PeersUtility.safeParseInt(args[3]);
+		}
+		
+		
+		
+		
 		try {
 			//IP in the same network
 			ip = InetAddress.getLocalHost().getHostAddress();
