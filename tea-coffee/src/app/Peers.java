@@ -278,6 +278,7 @@ public class Peers {
 			 * Clients messages 
 			 */
 		case "transmit" :
+			System.out.println(message);
 			int hashTo = PeersUtility.safeParseInt(cmds[1]);
 			if(hashTo != hash) {
 				if(idSuccesseur > hash && idSuccesseur < hashTo)
