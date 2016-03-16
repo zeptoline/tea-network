@@ -282,6 +282,10 @@ public class Peers {
 			if(hashTo != hash) {
 				if(idSuccesseur > hash && idSuccesseur < hashTo)
 					passToNearest(message, hashTo);
+				else if (idSuccesseur > hash && idSuccesseur >hashTo && hashTo > hash) 
+					sendResponse(cmds[3], "error, no hash corresponding");
+				else if (idSuccesseur == hash && hashTo != hash)
+					sendResponse(cmds[3], "error, no hash corresponding");
 				else if (idSuccesseur < hash && !(hashTo > hash || hashTo > 0 && hashTo < idSuccesseur))
 					sendResponse(cmds[3], "error : no hash corresponding");
 				else if (idSuccesseur == hashTo)
