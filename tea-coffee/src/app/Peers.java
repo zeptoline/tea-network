@@ -179,28 +179,7 @@ public class Peers {
 		System.out.println("The successor is not joignable");
 
 		leaveWelcomeServer(idSuccesseur);
-		
-//		finger.remove(idSuccesseur);
-//		finger.remove(hash);
-//		System.out.println("removed successor from routing table");
-//		int next = -1;
-//		for (int key : finger.keySet()) {
-//			next = key;
-//			break;
-//		}
-//		if (next != -1) {
-//			int old = idSuccesseur;
-//			idSuccesseur = next;
-//			IPsuccesseur = finger.get(next);
-//
-//			passToSuccessor("exit:"+old+":"+hash);
-//		} else {
-//			idSuccesseur = hash;
-//			idPredecesseur = hash;
-//			IPpredecesseur = ip;
-//			IPsuccesseur = ip;
-//		}
-		
+	
 		// si seulement 2 personnes
 		if(idPredecesseur == idSuccesseur){
 			finger.remove(idSuccesseur);
