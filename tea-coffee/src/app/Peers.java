@@ -180,25 +180,47 @@ public class Peers {
 
 		leaveWelcomeServer(idSuccesseur);
 		
-		finger.remove(idSuccesseur);
-		finger.remove(hash);
-		System.out.println("removed successor from routing table");
-		int next = -1;
-		for (int key : finger.keySet()) {
-			next = key;
-			break;
-		}
-		if (next != -1) {
-			int old = idSuccesseur;
-			idSuccesseur = next;
-			IPsuccesseur = finger.get(next);
+//		finger.remove(idSuccesseur);
+//		finger.remove(hash);
+//		System.out.println("removed successor from routing table");
+//		int next = -1;
+//		for (int key : finger.keySet()) {
+//			next = key;
+//			break;
+//		}
+//		if (next != -1) {
+//			int old = idSuccesseur;
+//			idSuccesseur = next;
+//			IPsuccesseur = finger.get(next);
+//
+//			passToSuccessor("exit:"+old+":"+hash);
+//		} else {
+//			idSuccesseur = hash;
+//			idPredecesseur = hash;
+//			IPpredecesseur = ip;
+//			IPsuccesseur = ip;
+//		}
+		
+		// si seulement 2 personnes
+		if(idPredecesseur == idSuccesseur){
+			finger.remove(idSuccesseur);
 
-			passToSuccessor("exit:"+old+":"+hash);
-		} else {
 			idSuccesseur = hash;
 			idPredecesseur = hash;
 			IPpredecesseur = ip;
 			IPsuccesseur = ip;
+			
+			refreshFinger();
+		}
+		else {
+			String result = getResponseIP(IPpredecesseur, "getNewSucc:"+idSuccesseur+":"+ip+":"+hash);
+			int old = idSuccesseur;
+			
+			String[] results = result.split("-");
+			idSuccesseur = PeersUtility.safeParseInt(results[0]);
+			IPsuccesseur = results[1];
+
+			passToSuccessor("exit:"+old+":"+hash);
 		}
 		
 	}
@@ -294,6 +316,19 @@ public class Peers {
 		case "ruhere":
 			os.println("yes");
 			break;
+
+		//getNewSucc:hashToRemove:ipFrom:hashfrom
+		case "getNewSucc":
+			int hashToRemove = PeersUtility.safeParseInt(cmds[1]);
+			if(idPredecesseur == hashToRemove) {
+				idPredecesseur = PeersUtility.safeParseInt(cmds[2]);
+				IPpredecesseur = cmds[3];
+				sendResponse(cmds[2], hash+"-"+ip);
+			} else {
+				sendToIP(IPpredecesseur, message);
+			}
+			break;
+			
 			
 		default:
 			System.err.println("Received message '"+message+"', cannot treat");
