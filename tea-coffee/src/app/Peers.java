@@ -326,8 +326,8 @@ public class Peers {
 		case "getNewSucc":
 			int hashToRemove = PeersUtility.safeParseInt(cmds[1]);
 			if(idPredecesseur == hashToRemove) {
-				idPredecesseur = PeersUtility.safeParseInt(cmds[2]);
-				IPpredecesseur = cmds[3];
+				idPredecesseur = PeersUtility.safeParseInt(cmds[3]);
+				IPpredecesseur = cmds[2];
 				sendResponse(cmds[2], hash+"-"+ip);
 			} else {
 				sendToIP(IPpredecesseur, message);
