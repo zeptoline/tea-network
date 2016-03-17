@@ -257,7 +257,6 @@ public class Peers {
 			 * Clients messages 
 			 */
 		case "transmit" :
-			System.out.println(message);
 			int hashTo = PeersUtility.safeParseInt(cmds[1]);
 			if(hashTo != hash) {
 				if(idSuccesseur > hash && idSuccesseur < hashTo)
@@ -499,6 +498,7 @@ public class Peers {
 						PrintStream os = new PrintStream (cs.getOutputStream(), true);
 						) 
 				{
+					refreshFinger();
 					System.out.println("Starting sending routing table");
 					d.readLine();
 					for (String key : finger_moniteur) {
